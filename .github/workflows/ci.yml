@@ -2,6 +2,10 @@ on: [push]
 
 name: CI
 
+concurrency:
+  group: ${{ github.ref_name }}
+  cancel-in-progress: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) }}
+
 jobs:
   build_and_test:
     name: build and test
