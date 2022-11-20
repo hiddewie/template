@@ -1,0 +1,10 @@
+// WHITESPACE = _{ " " | NEWLINE }
+whitespace = _{ " " | NEWLINE }
+property = @{ ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
+properties = { property ~ ("." ~ property)* }
+function = { "lower" | "upper" }
+expression = { properties ~ whitespace* ~ ("|" ~ whitespace* ~ function)* }
+template = { "{%" ~ whitespace* ~ expression ~ whitespace* ~ "%}" }
+character = @{ !"{%" ~ ANY }
+
+file = { SOI ~ (template | character)* ~ EOI }
