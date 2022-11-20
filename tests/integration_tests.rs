@@ -21,7 +21,7 @@ fn no_variables() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
         .arg("tests/template/no_variables.tmpl")
-        .arg("tests/configuration/config.json")
+        .arg("tests/configuration/empty.json")
         .assert();
 
     assert
