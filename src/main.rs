@@ -32,6 +32,17 @@ fn apply_function(value: String, function: &str) -> String {
     };
 }
 
+fn format_string(value: &Value) -> String {
+    match value {
+        Value::Null => "".to_string(),
+        Value::Bool(boolean) => boolean.to_string(),
+        Value::Number(number) => number.to_string(),
+        Value::String(string) => string.to_string(),
+        Value::Array(values) => "".to_string(), //"[" + values.map(|v| format_string(v)).join(",") + "]",
+        Value::Object(object) => "{".to_string(), // + object.map(|k| k + ":".to_string() + format_string(object.get(k).unwrap())).join(",") + "}"
+    }
+}
+
 fn evaluate(value: &Value, expression: &mut Pairs<Rule>) -> Option<String> {
     let properties = expression.next().unwrap();
 
@@ -44,7 +55,7 @@ fn evaluate(value: &Value, expression: &mut Pairs<Rule>) -> Option<String> {
             _ => unreachable!(),
         }
     }
-    let mut result = current_value.as_str()?.to_string();
+    let mut result = format_string(current_value);
     for function in expression {
         match function.as_rule() {
             Rule::function => {
@@ -81,7 +92,7 @@ fn main() {
             // Rule::property => {
             //     print!("<property: {}>", record.as_str());
             // }
-            Rule::template =>   {
+            Rule::template => {
                 // print!("<template: '{}'>", record.as_str());
                 let mut inner_rules = record.into_inner();
                 let expression = inner_rules.next().unwrap();

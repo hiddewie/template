@@ -74,10 +74,13 @@ fn variables() {
         .success()
         .stdout(r#"--- START ---
 begin
-!!
+!1!
 string
 
 --value--
+false
+{
+
 end
 --- END ---
 "#)
