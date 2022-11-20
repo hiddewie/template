@@ -40,29 +40,6 @@ done
 }
 
 #[test]
-fn template() {
-    let mut cmd = Command::cargo_bin("template").unwrap();
-    let assert = cmd
-        .arg("tests/template/test.tmpl")
-        .arg("tests/configuration/config.json")
-        .assert();
-
-    assert
-        .success()
-        .stdout(r#"--- START ---
-a
-b
-{out}
-47
-prop OUT
-
-c
---- END ---
-"#)
-        .stderr("");
-}
-
-#[test]
 fn variables() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
