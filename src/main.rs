@@ -88,6 +88,7 @@ fn main() {
         .expect("unsuccessful parse") // unwrap the parse result
         .next().unwrap(); // get and unwrap the `file` rule; never fails
 
+    let mut result = String::new();
     for record in file.into_inner() {
         match record.as_rule() {
             // Rule::property => {
@@ -98,12 +99,14 @@ fn main() {
                 let mut inner_rules = record.into_inner();
                 let expression = inner_rules.next().unwrap();
 
-                print!("{}", evaluate(&data, &mut expression.into_inner()).unwrap_or("".to_string()));
+                result.push_str(&evaluate(&data, &mut expression.into_inner()).unwrap_or("".to_string()))
             }
             Rule::character => {
                 // let mut inner_rules = record.into_inner(); // { name }
                 // let q  = inner_rules.next().unwrap().as_str();
-                print!("{}", record.as_str());
+                // print!("{}", record.as_str());
+                result.push_str(record.as_str())
+
 
                 // print!("Character {}", record);
             }
@@ -111,4 +114,6 @@ fn main() {
             _ => unreachable!(),
         }
     }
+
+    print!("{}", result);
 }
