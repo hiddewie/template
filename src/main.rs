@@ -71,11 +71,13 @@ fn evaluate(value: &Value, expression: &mut Pairs<Rule>) -> Option<String> {
 fn main() {
     let args: Cli = Cli::parse();
     let path = args.path;
+    eprintln!("Template path '{}'", path.to_str().unwrap());
     // println!("Path: {}", path.as_path().display());
 
     let template_content = std::fs::read_to_string(path).unwrap();
 
     let config = args.config;
+    eprintln!("Configuration path '{}'", config.to_str().unwrap());
     // println!("Path: {}", config.as_path().display());
 
     let content = std::fs::read_to_string(config).unwrap();

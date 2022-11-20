@@ -11,7 +11,9 @@ fn empty_template() {
     assert
         .success()
         .stdout("")
-        .stderr("");
+        .stderr(r#"Template path 'tests/template/empty.tmpl'
+Configuration path 'tests/configuration/empty.json'
+"#);
 }
 
 #[test]
@@ -32,7 +34,9 @@ line4
 
 done
 "#)
-        .stderr("");
+        .stderr(r#"Template path 'tests/template/no_variables.tmpl'
+Configuration path 'tests/configuration/empty.json'
+"#);
 }
 
 #[test]
@@ -55,7 +59,9 @@ false
 [1,2,3]
 end
 "#)
-        .stderr("");
+        .stderr(r#"Template path 'tests/template/variables.tmpl'
+Configuration path 'tests/configuration/variables.json'
+"#);
 }
 
 #[test]
@@ -70,5 +76,7 @@ fn missing_configuration_value() {
         .success()
         .stdout(r#"!!
 "#)
-        .stderr("");
+        .stderr(r#"Template path 'tests/template/a.tmpl'
+Configuration path 'tests/configuration/empty.json'
+"#);
 }
