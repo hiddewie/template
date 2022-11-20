@@ -10,9 +10,7 @@ fn empty_template() {
 
     assert
         .success()
-        .stdout(r#"--- START ---
---- END ---
-"#)
+        .stdout("")
         .stderr("");
 }
 
@@ -26,15 +24,13 @@ fn no_variables() {
 
     assert
         .success()
-        .stdout(r#"--- START ---
-line1
+        .stdout(r#"line1
 line2
 line3
 
 line4
 
 done
---- END ---
 "#)
         .stderr("");
 }
@@ -49,8 +45,7 @@ fn variables() {
 
     assert
         .success()
-        .stdout(r#"--- START ---
-begin
+        .stdout(r#"begin
 !1!
 string
 
@@ -59,7 +54,6 @@ false
 {g:1}
 [1,2,3]
 end
---- END ---
 "#)
         .stderr("");
 }
@@ -74,9 +68,7 @@ fn missing_configuration_value() {
 
     assert
         .success()
-        .stdout(r#"--- START ---
-!!
---- END ---
+        .stdout(r#"!!
 "#)
         .stderr("");
 }

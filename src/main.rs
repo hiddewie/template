@@ -86,8 +86,6 @@ fn main() {
         .expect("unsuccessful parse") // unwrap the parse result
         .next().unwrap(); // get and unwrap the `file` rule; never fails
 
-    println!("--- START ---");
-
     for record in file.into_inner() {
         match record.as_rule() {
             // Rule::property => {
@@ -111,6 +109,4 @@ fn main() {
             _ => unreachable!(),
         }
     }
-
-    println!("--- END ---");
 }
