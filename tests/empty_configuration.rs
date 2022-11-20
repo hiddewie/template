@@ -24,5 +24,6 @@ prop OUT
 <no value>
 c
 --- END ---
-"#);
+"#)
+        .stderr("");
 }
