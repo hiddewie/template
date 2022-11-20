@@ -1,23 +1,16 @@
 use assert_cmd::Command;
 
 #[test]
-fn empty_configuration() {
+fn empty_template() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
-        .arg("tests/template/test.tmpl")
-        .arg("tests/configuration/config.json")
+        .arg("tests/template/empty.tmpl")
+        .arg("tests/configuration/empty.json")
         .assert();
 
     assert
         .success()
         .stdout(r#"--- START ---
-a
-b
-{out}
-47
-prop OUT
-<no value>
-c
 --- END ---
 "#)
         .stderr("");
