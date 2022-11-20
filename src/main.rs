@@ -38,8 +38,9 @@ fn format_string(value: &Value) -> String {
         Value::Bool(boolean) => boolean.to_string(),
         Value::Number(number) => number.to_string(),
         Value::String(string) => string.to_string(),
-        Value::Array(values) => "".to_string(), //"[" + values.map(|v| format_string(v)).join(",") + "]",
-        Value::Object(object) => "{".to_string(), // + object.map(|k| k + ":".to_string() + format_string(object.get(k).unwrap())).join(",") + "}"
+        Value::Array(values) => format!("[{}]", values.iter().map(|v| format_string(v)).reduce(|cur, next| format!("{},{}", &cur, &next)).unwrap_or("".to_string())), //"".to_string(), //"[" + values.map(|v| format_string(v)).join(",") + "]",
+        Value::Object(object) => format!("{{{}}}", object.iter().map(|(k, v)| format!("{}:{}", k,format_string(v))).reduce(|cur, next| format!("{},{}", &cur, &next)).unwrap_or("".to_string())),
+            // "{".to_string(), // + object.map(|k| k + ":".to_string() + format_string(object.get(k).unwrap())).join(",") + "}"
     }
 }
 

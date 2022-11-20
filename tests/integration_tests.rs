@@ -56,8 +56,8 @@ string
 
 --value--
 false
-{
-
+{g:1}
+[1,2,3]
 end
 --- END ---
 "#)
