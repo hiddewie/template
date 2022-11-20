@@ -86,7 +86,7 @@ fn main() {
                 let mut inner_rules = record.into_inner();
                 let expression = inner_rules.next().unwrap();
 
-                print!("{}", evaluate(&data, &mut expression.into_inner()).unwrap_or("<no value>".to_string()));
+                print!("{}", evaluate(&data, &mut expression.into_inner()).unwrap_or("".to_string()));
             }
             Rule::character => {
                 // let mut inner_rules = record.into_inner(); // { name }

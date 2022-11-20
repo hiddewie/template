@@ -55,7 +55,7 @@ b
 {out}
 47
 prop OUT
-<no value>
+
 c
 --- END ---
 "#)
@@ -74,7 +74,7 @@ fn variables() {
         .success()
         .stdout(r#"--- START ---
 begin
-!<no value>!
+!!
 string
 
 --value--
@@ -95,7 +95,7 @@ fn missing_configuration_value() {
     assert
         .success()
         .stdout(r#"--- START ---
-!<no value>!
+!!
 --- END ---
 "#)
         .stderr("");
