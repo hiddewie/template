@@ -68,6 +68,11 @@ fn evaluate(value: &Value, expression: &mut Pairs<Rule>) -> Option<String> {
     return Some(result);
 }
 
+fn evaluate_boolean(value: &Value, expression: &mut Pairs<Rule>) -> Option<bool> {
+    return evaluate(value, expression)
+        .map(|result| result != "false" && !result.trim().is_empty());
+}
+
 fn main() {
     let args: Cli = Cli::parse();
     let path = args.path;
@@ -99,7 +104,58 @@ fn main() {
                 let mut inner_rules = record.into_inner();
                 let expression = inner_rules.next().unwrap();
 
-                result.push_str(&evaluate(&data, &mut expression.into_inner()).unwrap_or("".to_string()))
+                match expression.as_rule() {
+                    Rule::if_elif_else_template => {
+                        let mut done = false;
+                        let mut valid = false;
+                        for if_inner in expression.into_inner() {
+                            match if_inner.as_rule() {
+                                Rule::if_template => {
+                                    valid = false;
+
+                                    let mut if_inner_expression = if_inner.into_inner();
+                                    let if_expression = if_inner_expression.next().unwrap();
+                                    let if_result = evaluate_boolean(&data, &mut if_expression.into_inner()).unwrap_or(false);
+                                    if if_result {
+                                        done = true;
+                                        valid = true
+                                    }
+                                }
+                                Rule::elif_template => {
+                                    valid = false;
+
+                                    let mut elif_inner_expression = if_inner.into_inner();
+                                    let elif_expression = elif_inner_expression.next().unwrap();
+                                    let elif_result = evaluate_boolean(&data, &mut elif_expression.into_inner()).unwrap_or(false);
+                                    if !done && elif_result {
+                                        done = true;
+                                        valid = true
+                                    }
+                                }
+                                Rule::else_template => {
+                                    valid = !done;
+                                }
+                                Rule::end_template => {
+                                    valid = false;
+                                    done = true;
+                                }
+                                Rule::character => {
+                                    if valid {
+                                        result.push_str(if_inner.as_str())
+                                    }
+                                }
+                                _ => unreachable!(),
+                            }
+                        }
+                    }
+                    Rule::expression_template => {
+                        let mut inner_rules = expression.into_inner();
+                        let expression = inner_rules.next().unwrap();
+
+                        result.push_str(&evaluate(&data, &mut expression.into_inner()).unwrap_or("".to_string()))
+                    }
+                    _ => unreachable!(),
+                }
             }
             Rule::character => {
                 // let mut inner_rules = record.into_inner(); // { name }

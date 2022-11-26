@@ -4,7 +4,13 @@ property = @{ ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
 properties = { property ~ ("." ~ property)* }
 function = { "lower" | "upper" }
 expression = { properties ~ whitespace* ~ ("|" ~ whitespace* ~ function)* }
-template = { "{%" ~ whitespace* ~ expression ~ whitespace* ~ "%}" }
+expression_template = { "{%" ~ whitespace* ~ expression ~ whitespace* ~ "%}" }
+if_template = { "{%" ~ whitespace* ~ "if" ~ whitespace+ ~ expression ~ whitespace* ~ "%}" }
+elif_template = { "{%" ~ whitespace* ~ "elif" ~ whitespace+ ~ expression ~ whitespace* ~ "%}" }
+else_template = { "{%" ~ whitespace* ~ "else" ~ whitespace* ~ "%}" }
+end_template = { "{%" ~ whitespace* ~ "end" ~ whitespace* ~ "%}" }
+if_elif_else_template = { if_template ~ character* ~ elif_template* ~ character* ~ else_template? ~ character*  ~ end_template }
+template = { if_elif_else_template | expression_template }
 character = @{ !"{%" ~ ANY }
 
 file = { SOI ~ (template | character)* ~ EOI }

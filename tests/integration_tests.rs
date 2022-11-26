@@ -81,3 +81,39 @@ fn missing_configuration_value() {
 Configuration path 'tests/configuration/empty.json'
 "#);
 }
+
+#[test]
+fn if_else() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/if_else.tmpl")
+        .arg("tests/configuration/if_else.json")
+        .assert();
+
+    assert
+        .success()
+        .stdout(r#"
+else
+
+
+
+true
+
+
+
+
+
+nonempty
+
+
+
+else
+
+
+
+else
+"#)
+        .stderr(r#"Template path 'tests/template/if_else.tmpl'
+Configuration path 'tests/configuration/if_else.json'
+"#);
+}
