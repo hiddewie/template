@@ -1,3 +1,75 @@
 # template
 
 CLI for templating based on JSON, YAML or HCL configuration
+
+## Installation
+
+Compile with
+```shell
+cargo build --release
+```
+
+## Usage
+
+Run the `template` CLI with
+```shell
+target/release/template path/to/template.template path/to/configuration.json
+```
+
+The output is rendered to the standard output stream. Log messages are output to the standard error stream.
+
+## Configuration
+
+- JSON
+
+## Templating
+
+See [Pest grammar](./src/template.pest) for formal template grammar.
+
+Extension recommended `.template`, but not enforced.
+
+### Configuration values
+
+Configuration 
+```json
+{
+  "value": "Hello",
+  "nested": {
+    "value": "world"
+  }
+}
+```
+with template
+```
+{% value %}{% nested.value %}{% does_not_exist %}!
+```
+renders output
+```
+Hello world!
+```
+
+### Flow control
+
+```
+{% if some_expression %}
+  Rendered when the expression is truthy
+{% elif else_if_expression %}
+  Rendered when the above is not true and the expression is truthy
+{% else %}
+  Rendered when the above are not truthy
+{% end %}
+```
+
+## Development
+
+### Build
+
+```shell
+cargo build
+```
+
+### Test
+
+```shell
+cargo test
+```
