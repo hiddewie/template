@@ -77,21 +77,18 @@ fn main() {
     let args: Cli = Cli::parse();
     let path = args.path;
     eprintln!("Template path '{}'", path.to_str().unwrap());
-    // println!("Path: {}", path.as_path().display());
 
     let template_content = std::fs::read_to_string(path).unwrap();
 
     let config = args.config;
     eprintln!("Configuration path '{}'", config.to_str().unwrap());
-    // println!("Path: {}", config.as_path().display());
 
     let content = std::fs::read_to_string(config).unwrap();
     let data: Value = serde_json::from_str(content.as_str()).unwrap();
-    // println!("Data: {}, {}", data["test"], data["out"]);
 
     let file = TemplateParser::parse(Rule::file, &template_content)
-        .expect("unsuccessful parse") // unwrap the parse result
-        .next().unwrap(); // get and unwrap the `file` rule; never fails
+        .unwrap_or_else(|e| panic!("Could not parse template\n{}", e))
+        .next().unwrap();
 
     let mut result = String::new();
     for record in file.into_inner() {
