@@ -50,6 +50,7 @@ Hello world!
 
 ### Flow control
 
+Test expressions with `if`, `elif` and `else`:
 ```
 {% if some_expression %}
   Rendered when the expression is truthy
