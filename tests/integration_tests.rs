@@ -117,3 +117,40 @@ else
 Configuration path 'tests/configuration/if_else.json'
 "#);
 }
+
+#[test]
+fn iteration() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/iteration.tmpl")
+        .arg("tests/configuration/iteration.json")
+        .assert();
+
+    println!("{}", std::str::from_utf8(&*assert.get_output().stderr).unwrap().to_string());
+
+    assert
+        .success()
+        .stdout(r#"
+loop start
+outer
+value 1
+nested value 1
+
+loop end
+
+loop start
+outer
+value 2
+nested value 2
+
+loop end
+
+
+
+
+
+"#)
+        .stderr(r#"Template path 'tests/template/iteration.tmpl'
+Configuration path 'tests/configuration/iteration.json'
+"#);
+}

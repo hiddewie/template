@@ -1,0 +1,18 @@
+{% for item in items %}
+loop start
+{% outer %}
+{% item.value %}
+{% item.nested.value %}
+{% does_not_exist %}
+loop end
+{% end %}
+
+{% for item in empty %}
+{% else %}
+else
+{% end %}
+
+{% for item in non_existent %}
+{% else %}
+else
+{% end %}

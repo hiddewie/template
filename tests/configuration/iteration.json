@@ -1,0 +1,17 @@
+{
+  "outer": "outer",
+  "items": [
+    {
+      "value": "value 1",
+      "nested": {
+        "value": "nested value 1"
+      }
+    },
+    {
+      "value": "value 2",
+      "nested": {
+        "value": "nested value 2"
+      }
+    }
+  ]
+}
