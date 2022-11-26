@@ -18,6 +18,11 @@ target/release/template path/to/template.template path/to/configuration.json
 
 The output is rendered to the standard output stream. Log messages are output to the standard error stream.
 
+### Exit codes
+
+- 0: Success. The standard output contains the rendered template.
+- 101: Panic. An unexpected error has occurred which was not handled correctly. Please [create an issue](https://github.com/hiddewie/template/issues) to report the configuration, the template and the error output.
+
 ## Configuration
 
 - JSON
