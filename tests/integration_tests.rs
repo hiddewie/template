@@ -75,6 +75,7 @@ fn missing_configuration_value() {
     assert
         .success()
         .stdout(r#"!!
+!!
 "#)
         .stderr(r#"Template path 'tests/template/a.tmpl'
 Configuration path 'tests/configuration/empty.json'
