@@ -154,3 +154,27 @@ loop end
 Configuration path 'tests/configuration/iteration.json'
 "#);
 }
+
+#[test]
+fn comments() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/comments.tmpl")
+        .arg("tests/configuration/empty.json")
+        .assert();
+
+    println!("{}", std::str::from_utf8(&*assert.get_output().stderr).unwrap().to_string());
+
+    assert
+        .success()
+        .stdout(r#"
+
+
+false
+
+
+"#)
+        .stderr(r#"Template path 'tests/template/comments.tmpl'
+Configuration path 'tests/configuration/empty.json'
+"#);
+}

@@ -1,0 +1,17 @@
+{# comment #}
+{% variable %}
+{% if test %}{# comment #}
+test
+{% else %}
+false
+{% end %}
+{# {% for INVALID %} #}
+{% for item in loop %}
+{# comment #}
+{% item %}
+{#
+{% end %}
+#}
+{% else %}
+else
+{% end %}

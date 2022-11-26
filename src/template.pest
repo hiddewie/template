@@ -2,20 +2,34 @@
 whitespace = _{ " " | NEWLINE }
 start_marker = _{ "{%" }
 end_marker = _{ "%}" }
-keywords = _{ "if" | "elif" | "else" | "end" | "for" }
+comment_start_marker = _{ "{#" }
+comment_end_marker = _{ "#}" }
+keyword_if = _{ "if" }
+keyword_elif = _{ "elif" }
+keyword_else = _{ "else" }
+keyword_end = _{ "end" }
+keyword_for = _{ "for" }
+keywords = _{
+    keyword_if |
+    keyword_elif |
+    keyword_else |
+    keyword_end |
+    keyword_for
+}
 property = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_" | "-")* }
 properties = { property ~ ("." ~ property)* }
 function = { "lower" | "upper" }
 expression = { !keywords ~ properties ~ whitespace* ~ ("|" ~ whitespace* ~ function)* }
 expression_template = { start_marker ~ whitespace* ~ expression ~ whitespace* ~ end_marker }
-if_template = { start_marker ~ whitespace* ~ "if" ~ whitespace+ ~ expression ~ whitespace* ~ end_marker }
-elif_template = { start_marker ~ whitespace* ~ "elif" ~ whitespace+ ~ expression ~ whitespace* ~ end_marker }
-else_template = { start_marker ~ whitespace* ~ "else" ~ whitespace* ~ end_marker }
-end_template = { start_marker ~ whitespace* ~ "end" ~ whitespace* ~ end_marker }
+if_template = { start_marker ~ whitespace* ~ keyword_if ~ whitespace+ ~ expression ~ whitespace* ~ end_marker }
+elif_template = { start_marker ~ whitespace* ~ keyword_elif ~ whitespace+ ~ expression ~ whitespace* ~ end_marker }
+else_template = { start_marker ~ whitespace* ~ keyword_else ~ whitespace* ~ end_marker }
+end_template = { start_marker ~ whitespace* ~ keyword_end ~ whitespace* ~ end_marker }
 if_elif_else_template = { if_template ~ sub_template ~ elif_template* ~ sub_template ~ else_template? ~ sub_template  ~ end_template }
-for_template = { start_marker ~ whitespace* ~ "for" ~ whitespace+ ~ property ~ whitespace+ ~ "in" ~ whitespace+ ~ expression ~ whitespace* ~ end_marker }
+for_template = { start_marker ~ whitespace* ~ keyword_for ~ whitespace+ ~ property ~ whitespace+ ~ "in" ~ whitespace+ ~ expression ~ whitespace* ~ end_marker }
 for_else_template = { for_template ~ sub_template ~ else_template? ~ sub_template ~ end_template }
-template = { if_elif_else_template | for_else_template | expression_template }
+comment = { comment_start_marker ~ (!comment_end_marker ~ ANY)+ ~ comment_end_marker }
+template = { comment | if_elif_else_template | for_else_template | expression_template }
 character = @{ !start_marker ~ ANY }
 
 sub_template = _{ (template | character)* }

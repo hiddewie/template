@@ -215,6 +215,7 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> String {
             let evaluation_result = evaluate(&data, &mut expression.into_inner()).unwrap_or(Value::Null);
             result.push_str(format_string(&evaluation_result).to_string().as_str())
         }
+        Rule::comment => (),
         _ => unreachable!(),
     }
 

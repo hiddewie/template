@@ -33,7 +33,7 @@ See [Pest grammar](./src/template.pest) for formal template grammar.
 
 Extension recommended `.template`, but not enforced.
 
-### Configuration values
+### Render configuration data
 
 Configuration 
 ```json
@@ -51,6 +51,18 @@ with template
 renders output
 ```
 Hello world!
+```
+
+### Comments
+
+Comments are ignored and the content will not be rendered as output
+
+```
+This is rendered {# comment #} 
+{# {% for item in array %}
+This is not a loop
+{% end %} #}
+This is rendered
 ```
 
 ### Flow control
