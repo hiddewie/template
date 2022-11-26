@@ -61,6 +61,16 @@ Test expressions with `if`, `elif` and `else`:
 {% end %}
 ```
 
+Loop over arrays with `for` and `else`:
+```
+{% for item in array_value %}
+  Rendered content for each item
+  {% item.property %} Propreties can be referenced
+{% else %}
+  Rendered when the array did not contain any values
+{% end %}
+```
+
 ## Development
 
 ### Build
