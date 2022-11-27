@@ -30,7 +30,14 @@ function = {
     "capitalize" |
     "environment"
 }
-expression = { !keywords ~ properties ~ whitespace* ~ ("|" ~ whitespace* ~ function)* }
+boolean = { "true" | "false" }
+floating_point_number = { "-"? ~ ((ASCII_DIGIT* ~ "." ~ ASCII_DIGIT+) | (ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT*)) ~ (("e" | "E") ~ "-"? ~ ASCII_DIGIT+)? }
+integer_number = { "-"? ~ ASCII_DIGIT+ }
+number = { floating_point_number | integer_number }
+string = { "\"" ~ (!"\"" ~ ANY)* ~ "\"" }
+null = { "null" }
+literal = { boolean | number | string | null }
+expression = { !keywords ~ (literal | properties) ~ whitespace* ~ ("|" ~ whitespace* ~ function)* }
 expression_template = { start_marker ~ whitespace* ~ expression ~ whitespace* ~ end_marker }
 if_template = { start_marker ~ whitespace* ~ keyword_if ~ whitespace+ ~ expression ~ whitespace* ~ end_marker }
 elif_template = { start_marker ~ whitespace* ~ keyword_elif ~ whitespace+ ~ expression ~ whitespace* ~ end_marker }

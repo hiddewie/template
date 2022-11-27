@@ -73,7 +73,7 @@ ERROR: Could not parse template
 1 | {%
   |   ^---
   |
-  = expected property
+  = expected expression
 "#);
 }
 
@@ -312,5 +312,43 @@ environment: env_test
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'
+"#);
+}
+
+#[test]
+fn literals() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/literals.template")
+        .arg("tests/configuration/empty.json")
+        .assert();
+
+    assert
+        .success()
+        .stdout(r#"null:
+true: true
+false: false
+integer: 0
+integer: 100
+integer: -100
+float: 0.0
+float: 0.0
+float: 1.0
+float: 1.0
+float: 0.1
+float: 10000000000.0
+float: 10000000000.0
+float: -0.0
+float: -0.0
+float: -1.0
+float: -1.0
+float: -0.1
+float: -10000000000.0
+float: -10000000000.0
+string:
+string: string
+"#)
+        .stderr(r#"Using template file 'tests/template/literals.template'
+Using configuration file 'tests/configuration/empty.json'
 "#);
 }

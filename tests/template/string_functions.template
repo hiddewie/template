@@ -9,4 +9,4 @@ snakeCase: {% with-spaces | snakeCase %}
 pascalCase: {% with-spaces | pascalCase %}
 capitalize: {% with-spaces | capitalize %}
 capitalizeWords: {% with-spaces | capitalizeWords %}
-environment: {% environment | environment %}
+environment: {% "ENV_TEST" | environment %}

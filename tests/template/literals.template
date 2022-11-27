@@ -1,0 +1,22 @@
+null:{% null %}
+true: {% true %}
+false: {% false %}
+integer: {% 0 %}
+integer: {% 100 %}
+integer: {% -100 %}
+float: {% 0. %}
+float: {% .0 %}
+float: {% 1.0 %}
+float: {% 1.0e0 %}
+float: {% 1.0e-1 %}
+float: {% 1.0e10 %}
+float: {% 1.0e10 %}
+float: {% -0. %}
+float: {% -.0 %}
+float: {% -1.0 %}
+float: {% -1.0e0 %}
+float: {% -1.0e-1 %}
+float: {% -1.0e10 %}
+float: {% -1.0e10 %}
+string:{% "" %}
+string: {% "string" %}

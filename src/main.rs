@@ -17,8 +17,6 @@ use regex::Regex;
 use serde_json::error::Category;
 use serde_json::Value;
 
-use crate::TemplateRenderError::TypeError;
-
 #[derive(Parser)]
 #[grammar = "template.pest"]
 pub struct TemplateParser;
@@ -39,14 +37,14 @@ fn type_of<T>(_: &T) -> String {
 #[derive(Debug)]
 enum TemplateRenderError {
     TypeError(String),
+    LiteralParseError(String),
 }
 
 impl Display for TemplateRenderError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            TypeError(string) => {
-                f.write_str(format!("Invalid type {}", string.as_str()).as_str())?;
-            }
+            TemplateRenderError::TypeError(string) => f.write_str(format!("Invalid type {}", string.as_str()).as_str())?,
+            TemplateRenderError::LiteralParseError(string) => f.write_str(format!("Could not parse literal '{}'", string.as_str()).as_str())?,
         }
         return Ok(());
     }
@@ -131,55 +129,55 @@ fn apply_function(value: &Value, function: &str) -> Result<Value, TemplateRender
         "lowerCase" => {
             match value {
                 Value::String(string) => Ok(Value::String(string.to_lowercase())),
-                _ => Err(TypeError(type_of(&value)))
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
         "upperCase" => {
             match value {
                 Value::String(string) => Ok(Value::String(string.to_uppercase())),
-                _ => Err(TypeError(type_of(&value)))
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
         "kebabCase" => {
             match value {
                 Value::String(string) => Ok(Value::String(kebab_case(string))),
-                _ => Err(TypeError(type_of(&value)))
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
         "snakeCase" => {
             match value {
                 Value::String(string) => Ok(Value::String(snake_case(string))),
-                _ => Err(TypeError(type_of(&value)))
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
         "camelCase" => {
             match value {
                 Value::String(string) => Ok(Value::String(camel_case(string))),
-                _ => Err(TypeError(type_of(&value)))
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
         "pascalCase" => {
             match value {
                 Value::String(string) => Ok(Value::String(pascal_case(string))),
-                _ => Err(TypeError(type_of(&value)))
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
         "capitalize" => {
             match value {
                 Value::String(string) => Ok(Value::String(capitalize(string))),
-                _ => Err(TypeError(type_of(&value)))
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
         "capitalizeWords" => {
             match value {
                 Value::String(string) => Ok(Value::String(capitalize_words(string))),
-                _ => Err(TypeError(type_of(&value)))
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
         "length" => {
             match value {
                 Value::String(string) => Ok(Value::from(string.len())),
-                _ => Err(TypeError(type_of(&value)))
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
         "environment" => {
@@ -187,7 +185,7 @@ fn apply_function(value: &Value, function: &str) -> Result<Value, TemplateRender
                 Value::String(string) => Ok(environment(string)
                     .map(|value| Value::from(value))
                     .unwrap_or(Value::Null)),
-                _ => Err(TypeError(type_of(&value)))
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
         _ => unreachable!()
@@ -205,18 +203,51 @@ fn format_string(value: &Value) -> String {
     }
 }
 
-fn evaluate(value: &Value, expression: &mut Pairs<Rule>) -> Result<Value, TemplateRenderError> {
-    let properties = expression.next().unwrap();
-
-    let mut current_value = value.clone();
-    for property in properties.into_inner() {
-        match property.as_rule() {
-            Rule::property => {
-                current_value = current_value[property.as_str()].clone();
-            }
-            _ => unreachable!(),
+fn parse_literal(literal: &Pair<Rule>) -> Result<Value, TemplateRenderError> {
+    let content = literal.as_str().to_string();
+    match literal.as_rule() {
+        Rule::null => Ok(Value::Null),
+        Rule::boolean => content.parse::<bool>()
+            .map_err(|_err| TemplateRenderError::LiteralParseError(content))
+            .map(|result| Value::from(result)),
+        Rule::number => match literal.clone().into_inner().next().unwrap().as_rule() {
+            Rule::integer_number => content.parse::<i64>()
+                .map_err(|_err| TemplateRenderError::LiteralParseError(content))
+                .map(|result| Value::from(result)),
+            Rule::floating_point_number => content.parse::<f64>()
+                .map_err(|_err| TemplateRenderError::LiteralParseError(content))
+                .map(|result| Value::from(result)),
+            _ => unreachable!()
         }
+        Rule::string => content.parse::<String>()
+            .map_err(|_err| TemplateRenderError::LiteralParseError(content))
+            .map(|result| Value::from(&result[1..result.len()-1])),
+        _ => unreachable!()
     }
+}
+
+fn evaluate(value: &Value, expression: &mut Pairs<Rule>) -> Result<Value, TemplateRenderError> {
+    let properties_or_literal = expression.next().unwrap();
+
+    let current_value = match properties_or_literal.as_rule() {
+        Rule::literal => {
+            parse_literal(&properties_or_literal.into_inner().next().unwrap())?
+        }
+        Rule::properties => {
+            let mut current_value = value.clone();
+            for property in properties_or_literal.into_inner() {
+                match property.as_rule() {
+                    Rule::property => {
+                        current_value = current_value[property.as_str()].clone();
+                    }
+                    _ => unreachable!(),
+                }
+            }
+            current_value
+        }
+        _ => unreachable!()
+    };
+
     let mut result = current_value;
     for function in expression {
         match function.as_rule() {
@@ -441,7 +472,10 @@ fn main() {
     let result = evaluate_file(&configuration, file)
         .unwrap_or_else(|template_render_error| {
             match template_render_error {
-                TypeError(value) => {
+                TemplateRenderError::TypeError(value) => {
+                    eprintln!("ERROR: Could not render template: {}", value);
+                }
+                TemplateRenderError::LiteralParseError(value) => {
                     eprintln!("ERROR: Could not render template: {}", value);
                 }
             }
