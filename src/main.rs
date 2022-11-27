@@ -242,6 +242,7 @@ fn evaluate_file(data: &Value, file: Pair<Rule>) -> String {
 static ERR_TEMPLATE_FILE: i32 = 1;
 static ERR_CONFIGURATION_FILE: i32 = 2;
 static ERR_PARSING_CONFIGURATION: i32 = 3;
+static ERR_PARSING_TEMPLATE: i32 = 4;
 
 fn main() {
     let args: Cli = Cli::parse();
@@ -249,31 +250,24 @@ fn main() {
     let utf8_path = path.to_str().unwrap_or("<path not representable in UTF-8>");
     eprintln!("Using template file '{}'", utf8_path);
 
-    let maybe_template_content = std::fs::read_to_string(path.clone());
-    let template_content = match maybe_template_content {
-        Ok(content) => content,
-        Err(error) => {
+    let template_content = std::fs::read_to_string(path.clone())
+        .unwrap_or_else(|error| {
             eprintln!("ERROR: Could not read template file '{}': {}", utf8_path, error);
             exit(ERR_TEMPLATE_FILE);
-        }
-    };
+        });
 
     let config = args.config;
     let utf8_config_path = config.to_str().unwrap_or("<path not representable in UTF-8>");
     eprintln!("Using configuration file '{}'", utf8_config_path);
 
-    let maybe_configuration_content = std::fs::read_to_string(config.clone());
-    let configuration_content = match maybe_configuration_content {
-        Ok(content) => content,
-        Err(error) => {
+    let configuration_content = std::fs::read_to_string(config.clone())
+        .unwrap_or_else(|error| {
             eprintln!("ERROR: Could not read configuration file '{}': {}", utf8_config_path, error);
             exit(ERR_CONFIGURATION_FILE);
-        }
-    };
-    let maybe_configuration = serde_json::from_str(configuration_content.as_str());
-    let configuration: Value = match maybe_configuration {
-        Ok(data) => data,
-        Err(parse_error) => {
+        });
+
+    let configuration: Value = serde_json::from_str(configuration_content.as_str())
+        .unwrap_or_else(|parse_error| {
             let classification = match parse_error.classify() {
                 Category::Io => "I/O error",
                 Category::Syntax => "syntax error",
@@ -282,11 +276,15 @@ fn main() {
             };
             eprintln!("ERROR: Could not parse JSON configuration ({}): {}", classification, parse_error);
             exit(ERR_PARSING_CONFIGURATION)
-        }
-    };
+        });
 
     let file = TemplateParser::parse(Rule::file, &template_content)
-        .unwrap_or_else(|e| panic!("Could not parse template\n{}", e))
+        .unwrap_or_else(|parse_error| {
+            eprintln!("ERROR: Could not parse template");
+            // Formatted content on new line
+            eprintln!("{}", parse_error);
+            exit(ERR_PARSING_TEMPLATE)
+        })
         .next().unwrap();
 
     let result = evaluate_file(&configuration, file);

@@ -54,6 +54,30 @@ ERROR: Could not parse JSON configuration (syntax error): key must be a string a
 }
 
 #[test]
+fn invalid_template() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/invalid.template")
+        .arg("tests/configuration/empty.json")
+        .assert();
+
+    assert
+        .failure()
+        .code(4)
+        .stdout("")
+        .stderr(r#"Using template file 'tests/template/invalid.template'
+Using configuration file 'tests/configuration/empty.json'
+ERROR: Could not parse template
+ --> 1:3
+  |
+1 | {%
+  |   ^---
+  |
+  = expected property
+"#);
+}
+
+#[test]
 fn empty_template() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
