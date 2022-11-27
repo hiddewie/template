@@ -30,7 +30,8 @@ function = {
     "capitalize" |
     "environment" |
     "default" |
-    "reverse"
+    "reverse" |
+    "split"
 }
 boolean = { "true" | "false" }
 floating_point_number = { "-"? ~ ((ASCII_DIGIT* ~ "." ~ ASCII_DIGIT+) | (ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT*)) ~ (("e" | "E") ~ "-"? ~ ASCII_DIGIT+)? }

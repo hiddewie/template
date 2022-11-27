@@ -310,6 +310,7 @@ capitalize: String with spaces
 capitalizeWords: String With Spaces
 environment: env_test
 reverse: gnirts
+split: [hello,world]
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'

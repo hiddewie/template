@@ -209,6 +209,22 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
                 _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
+        "split" => {
+            match value {
+                Value::String(string) => {
+                    let splitter = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("default".to_string()))?;
+                    match splitter {
+                        Value::String(splitter_string) => {
+                            let split_strings = string.split(splitter_string).map(|split| Value::String(split.to_string())).collect();
+                            Ok(Value::Array(split_strings))
+                        }
+                        _ => Err(TemplateRenderError::TypeError(type_of(&splitter)))
+                    }
+
+                },
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
+            }
+        }
         _ => unreachable!()
     };
 }

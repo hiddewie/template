@@ -138,6 +138,7 @@ Apply a function in a template by using the pipe `|` operator:
 - `capitalizeWords`: make the first character of every word uppercase.
 - `environment`: read an environment variable.
 - `reverse`: the string in reverse order.
+- `split(splitter)`: split the string for each occurrence of `splitter`.
 
 #### Array functions
 
