@@ -20,3 +20,7 @@ float: {% -1.0e10 %}
 float: {% -1.0e10 %}
 string:{% "" %}
 string: {% "string" %}
+array: {% [] %}
+array: {% [ ] %}
+array: {% [ 1 ] %}
+array: {% [ "", "a",1, 1., ] %}

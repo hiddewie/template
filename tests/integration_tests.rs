@@ -347,6 +347,10 @@ float: -10000000000.0
 float: -10000000000.0
 string:
 string: string
+array: []
+array: []
+array: [1]
+array: [,a,1,1.0]
 "#)
         .stderr(r#"Using template file 'tests/template/literals.template'
 Using configuration file 'tests/configuration/empty.json'

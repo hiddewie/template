@@ -222,7 +222,15 @@ fn parse_literal(literal: &Pair<Rule>) -> Result<Value, TemplateRenderError> {
         Rule::string => content.parse::<String>()
             .map_err(|_err| TemplateRenderError::LiteralParseError(content))
             .map(|result| Value::from(&result[1..result.len()-1])),
-        _ => unreachable!()
+        Rule::array => {
+            let array: Result<Vec<Value>, TemplateRenderError> = literal.clone().into_inner()
+                .into_iter()
+                .map(|inner_literal| parse_literal(&inner_literal.into_inner().next().unwrap()))
+                .collect();
+
+            array.map(|result| Value::Array(result))
+        }
+        _ => unreachable!("{}", literal)
     }
 }
 
