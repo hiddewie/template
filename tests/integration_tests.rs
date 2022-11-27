@@ -36,6 +36,24 @@ ERROR: Could not read configuration file 'tests/configuration/does_not_exist.jso
 }
 
 #[test]
+fn invalid_configuration() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/empty.template")
+        .arg("tests/configuration/invalid.json")
+        .assert();
+
+    assert
+        .failure()
+        .code(3)
+        .stdout("")
+        .stderr(r#"Using template file 'tests/template/empty.template'
+Using configuration file 'tests/configuration/invalid.json'
+ERROR: Could not parse JSON configuration (syntax error): key must be a string at line 1 column 2
+"#);
+}
+
+#[test]
 fn empty_template() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd

@@ -11,6 +11,7 @@ use clap::Parser as ClapParser;
 use pest::iterators::Pair;
 use pest::iterators::Pairs;
 use pest::Parser;
+use serde_json::error::Category;
 use serde_json::Value;
 
 #[derive(Parser)]
@@ -194,7 +195,7 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> String {
                                         let mut q = map.clone();
                                         q.insert(iterable_name.to_string(), iterable.clone());
                                         Value::Object(q)
-                                    },
+                                    }
                                     _ => iterable.clone(),
                                 };
                                 format!("{}{}", current_result, evaluate_template(&context_value, for_inner.clone()))
@@ -240,6 +241,7 @@ fn evaluate_file(data: &Value, file: Pair<Rule>) -> String {
 
 static ERR_TEMPLATE_FILE: i32 = 1;
 static ERR_CONFIGURATION_FILE: i32 = 2;
+static ERR_PARSING_CONFIGURATION: i32 = 3;
 
 fn main() {
     let args: Cli = Cli::parse();
@@ -268,12 +270,25 @@ fn main() {
             exit(ERR_CONFIGURATION_FILE);
         }
     };
-    let data: Value = serde_json::from_str(configuration_content.as_str()).unwrap();
+    let maybe_configuration = serde_json::from_str(configuration_content.as_str());
+    let configuration: Value = match maybe_configuration {
+        Ok(data) => data,
+        Err(parse_error) => {
+            let classification = match parse_error.classify() {
+                Category::Io => "I/O error",
+                Category::Syntax => "syntax error",
+                Category::Data => "data error",
+                Category::Eof => "premature end of file"
+            };
+            eprintln!("ERROR: Could not parse JSON configuration ({}): {}", classification, parse_error);
+            exit(ERR_PARSING_CONFIGURATION)
+        }
+    };
 
     let file = TemplateParser::parse(Rule::file, &template_content)
         .unwrap_or_else(|e| panic!("Could not parse template\n{}", e))
         .next().unwrap();
 
-    let result = evaluate_file(&data, file);
+    let result = evaluate_file(&configuration, file);
     print!("{}", result);
 }
