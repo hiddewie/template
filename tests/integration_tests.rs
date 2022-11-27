@@ -316,6 +316,42 @@ Using configuration file 'tests/configuration/string_functions.json'
 }
 
 #[test]
+fn array_functions() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/array_functions.template")
+        .arg("tests/configuration/empty.json")
+        .assert();
+
+    assert
+        .success()
+        .stdout(r#"length: 0
+length: 3
+"#)
+        .stderr(r#"Using template file 'tests/template/array_functions.template'
+Using configuration file 'tests/configuration/empty.json'
+"#);
+}
+
+#[test]
+fn dictionary_functions() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/dictionary_functions.template")
+        .arg("tests/configuration/empty.json")
+        .assert();
+
+    assert
+        .success()
+        .stdout(r#"length: 0
+length: 3
+"#)
+        .stderr(r#"Using template file 'tests/template/dictionary_functions.template'
+Using configuration file 'tests/configuration/empty.json'
+"#);
+}
+
+#[test]
 fn literals() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd

@@ -177,6 +177,8 @@ fn apply_function(value: &Value, function: &str) -> Result<Value, TemplateRender
         "length" => {
             match value {
                 Value::String(string) => Ok(Value::from(string.len())),
+                Value::Array(array) => Ok(Value::from(array.len())),
+                Value::Object(dictionary) => Ok(Value::from(dictionary.len())),
                 _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }

@@ -118,6 +118,7 @@ Loop over arrays with `for` and `else`:
 
 #### String functions
 
+- `length`: length of the string.
 - `upperCase`: transform a string into upper case.
 - `lowerCase`: transform a string into lower case.
 - `kebabCase`: transform a string into kebab case: `lowercase-words-joined-with-dashes`.
@@ -127,6 +128,14 @@ Loop over arrays with `for` and `else`:
 - `capitalize`: make the first character uppercase.
 - `capitalizeWords`: make the first character of every word uppercase.
 - `environment`: read an environment variable.
+
+#### Array functions
+
+- `length`: length of the array
+
+#### Dictionary functions
+
+- `length`: size of the dictionary
 
 ## Development
 
