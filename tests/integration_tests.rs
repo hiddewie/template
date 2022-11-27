@@ -299,6 +299,8 @@ fn string_functions() {
         .stdout(r#"string
 STRING
 upper
+0
+6
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'

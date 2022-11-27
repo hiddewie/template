@@ -1,5 +1,6 @@
 {
   "string": "string",
   "upper": "UPPER",
-  "with-spaces": "string with spaces"
+  "with-spaces": "string with spaces",
+  "empty": ""
 }

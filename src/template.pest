@@ -20,7 +20,8 @@ property = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_" | "-")* }
 properties = { property ~ ("." ~ property)* }
 function = {
     "lowerCase" |
-    "upperCase"
+    "upperCase" |
+    "length"
 }
 expression = { !keywords ~ properties ~ whitespace* ~ ("|" ~ whitespace* ~ function)* }
 expression_template = { start_marker ~ whitespace* ~ expression ~ whitespace* ~ end_marker }

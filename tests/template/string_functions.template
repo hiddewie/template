@@ -1,3 +1,5 @@
 {% string %}
 {% string | upperCase %}
 {% upper | lowerCase %}
+{% empty | length %}
+{% string | length %}

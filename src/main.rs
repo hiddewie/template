@@ -63,6 +63,12 @@ fn apply_function(value: &Value, function: &str) -> Result<Value, TemplateRender
                 _ => Err(TypeError(type_of(&value)))
             }
         }
+        "length" => {
+            match value {
+                Value::String(string) => Ok(Value::from(string.len())),
+                _ => Err(TypeError(type_of(&value)))
+            }
+        }
         _ => unreachable!()
     };
 }
