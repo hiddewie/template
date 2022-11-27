@@ -12,8 +12,10 @@ use clap::Parser as ClapParser;
 use pest::iterators::Pair;
 use pest::iterators::Pairs;
 use pest::Parser;
+use regex::Regex;
 use serde_json::error::Category;
 use serde_json::Value;
+
 use crate::TemplateRenderError::TypeError;
 
 #[derive(Parser)]
@@ -49,6 +51,52 @@ impl Display for TemplateRenderError {
     }
 }
 
+fn kebab_case(value: &String) -> String {
+    let re = Regex::new(r"[^a-zA-Z0-9_]+").unwrap();
+    let lower = value.to_lowercase();
+    return re.replace_all(lower.as_str(), "-").to_string();
+}
+
+fn snake_case(value: &String) -> String {
+    let re = Regex::new(r"[^a-zA-Z0-9-]+").unwrap();
+    let lower = value.to_lowercase();
+    return re.replace_all(lower.as_str(), "_").to_string();
+}
+
+fn camel_case(value: &String) -> String {
+    let mut result = String::new();
+    let mut to_upper = false;
+    for c in value.chars() {
+        match c {
+            'a'..='z' | 'A'..='Z' | '0'..='9' => {
+                result.push(if to_upper { c.to_ascii_uppercase() } else { c });
+                to_upper = false;
+            }
+            _ => {
+                to_upper = true;
+            }
+        }
+    }
+    return result;
+}
+
+fn pascal_case(value: &String) -> String {
+    let mut result = String::new();
+    let mut to_upper = true;
+    for c in value.chars() {
+        match c {
+            'a'..='z' | 'A'..='Z' | '0'..='9' => {
+                result.push(if to_upper { c.to_ascii_uppercase() } else { c });
+                to_upper = false;
+            }
+            _ => {
+                to_upper = true;
+            }
+        }
+    }
+    return result;
+}
+
 fn apply_function(value: &Value, function: &str) -> Result<Value, TemplateRenderError> {
     return match function {
         "lowerCase" => {
@@ -60,6 +108,30 @@ fn apply_function(value: &Value, function: &str) -> Result<Value, TemplateRender
         "upperCase" => {
             match value {
                 Value::String(string) => Ok(Value::String(string.to_uppercase())),
+                _ => Err(TypeError(type_of(&value)))
+            }
+        }
+        "kebabCase" => {
+            match value {
+                Value::String(string) => Ok(Value::String(kebab_case(string))),
+                _ => Err(TypeError(type_of(&value)))
+            }
+        }
+        "snakeCase" => {
+            match value {
+                Value::String(string) => Ok(Value::String(snake_case(string))),
+                _ => Err(TypeError(type_of(&value)))
+            }
+        }
+        "camelCase" => {
+            match value {
+                Value::String(string) => Ok(Value::String(camel_case(string))),
+                _ => Err(TypeError(type_of(&value)))
+            }
+        }
+        "pascalCase" => {
+            match value {
+                Value::String(string) => Ok(Value::String(pascal_case(string))),
                 _ => Err(TypeError(type_of(&value)))
             }
         }

@@ -21,6 +21,10 @@ properties = { property ~ ("." ~ property)* }
 function = {
     "lowerCase" |
     "upperCase" |
+    "kebabCase" |
+    "camelCase" |
+    "snakeCase" |
+    "pascalCase" |
     "length"
 }
 expression = { !keywords ~ properties ~ whitespace* ~ ("|" ~ whitespace* ~ function)* }

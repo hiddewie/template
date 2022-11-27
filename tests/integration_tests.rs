@@ -296,11 +296,15 @@ fn string_functions() {
 
     assert
         .success()
-        .stdout(r#"string
-STRING
-upper
-0
-6
+        .stdout(r#"print: string
+upperCase: STRING
+lowerCase: upper
+length: 0
+length: 6
+kebabCase: string-with-spaces
+camelCase: stringWithSpaces
+snakeCase: string_with_spaces
+pascalCase: StringWithSpaces
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'
