@@ -28,6 +28,15 @@ The output is rendered to the standard output stream. Log messages are output to
 - `5`: Template cannot be rendered.
 - `101`: Panic. An unexpected error has occurred, and was not handled correctly. Please [create an issue](https://github.com/hiddewie/template/issues) to report the configuration, the template and the error output.
 
+### Security
+
+This software:
+- reads the configuration file
+- reads the template file
+- reads the environment, if the `environment` function is used
+- does not write any files
+- does not make any network connections
+
 ## Configuration
 
 - JSON
