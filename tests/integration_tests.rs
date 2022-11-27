@@ -309,6 +309,7 @@ pascalCase: StringWithSpaces
 capitalize: String with spaces
 capitalizeWords: String With Spaces
 environment: env_test
+reverse: gnirts
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'
@@ -327,6 +328,7 @@ fn array_functions() {
         .success()
         .stdout(r#"length: 0
 length: 3
+reverse: [3,2,1]
 "#)
         .stderr(r#"Using template file 'tests/template/array_functions.template'
 Using configuration file 'tests/configuration/empty.json'

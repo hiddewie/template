@@ -10,3 +10,4 @@ pascalCase: {% with-spaces | pascalCase %}
 capitalize: {% with-spaces | capitalize %}
 capitalizeWords: {% with-spaces | capitalizeWords %}
 environment: {% "ENV_TEST" | environment %}
+reverse: {% "string" | reverse %}

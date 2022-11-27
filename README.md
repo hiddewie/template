@@ -137,10 +137,12 @@ Apply a function in a template by using the pipe `|` operator:
 - `capitalize`: make the first character uppercase.
 - `capitalizeWords`: make the first character of every word uppercase.
 - `environment`: read an environment variable.
+- `reverse`: the string in reverse order.
 
 #### Array functions
 
-- `length`: length of the array
+- `length`: length of the array.
+- `reverse`: the array in reverse order.
 
 #### Dictionary functions
 
