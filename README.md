@@ -105,6 +105,7 @@ Loop over arrays with `for` and `else`:
 - `pascalCase`: transform a string into pascal case: `CapitalizedWordsWithoutSpaces`.
 - `capitalize`: make the first character uppercase.
 - `capitalizeWords`: make the first character of every word uppercase.
+- `environment`: read an environment variable.
 
 ## Development
 

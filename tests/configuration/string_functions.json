@@ -2,5 +2,6 @@
   "string": "string",
   "upper": "UPPER",
   "with-spaces": "string with spaces",
-  "empty": ""
+  "empty": "",
+  "environment": "ENV_TEST"
 }

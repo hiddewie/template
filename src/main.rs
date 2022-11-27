@@ -4,6 +4,7 @@ extern crate pest;
 extern crate pest_derive;
 
 use std::cell::RefCell;
+use std::env;
 use std::fmt::{Debug, Display, Formatter};
 use std::process::exit;
 use std::rc::Rc;
@@ -121,6 +122,10 @@ fn capitalize_words(value: &String) -> String {
     return result;
 }
 
+fn environment(value: &String) -> Option<String> {
+    return env::var(value.as_str()).ok();
+}
+
 fn apply_function(value: &Value, function: &str) -> Result<Value, TemplateRenderError> {
     return match function {
         "lowerCase" => {
@@ -174,6 +179,14 @@ fn apply_function(value: &Value, function: &str) -> Result<Value, TemplateRender
         "length" => {
             match value {
                 Value::String(string) => Ok(Value::from(string.len())),
+                _ => Err(TypeError(type_of(&value)))
+            }
+        }
+        "environment" => {
+            match value {
+                Value::String(string) => Ok(environment(string)
+                    .map(|value| Value::from(value))
+                    .unwrap_or(Value::Null)),
                 _ => Err(TypeError(type_of(&value)))
             }
         }

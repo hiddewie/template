@@ -292,6 +292,7 @@ fn string_functions() {
     let assert = cmd
         .arg("tests/template/string_functions.template")
         .arg("tests/configuration/string_functions.json")
+        .env("ENV_TEST", "env_test")
         .assert();
 
     assert
@@ -307,6 +308,7 @@ snakeCase: string_with_spaces
 pascalCase: StringWithSpaces
 capitalize: String with spaces
 capitalizeWords: String With Spaces
+environment: env_test
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'

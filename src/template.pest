@@ -27,7 +27,8 @@ function = {
     "pascalCase" |
     "length" |
     "capitalizeWords" |
-    "capitalize"
+    "capitalize" |
+    "environment"
 }
 expression = { !keywords ~ properties ~ whitespace* ~ ("|" ~ whitespace* ~ function)* }
 expression_template = { start_marker ~ whitespace* ~ expression ~ whitespace* ~ end_marker }
