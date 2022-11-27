@@ -285,3 +285,22 @@ Using configuration file 'tests/configuration/function_error.json'
 ERROR: Could not render template: &serde_json::value::Value
 "#);
 }
+
+#[test]
+fn string_functions() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/string_functions.template")
+        .arg("tests/configuration/string_functions.json")
+        .assert();
+
+    assert
+        .success()
+        .stdout(r#"string
+STRING
+upper
+"#)
+        .stderr(r#"Using template file 'tests/template/string_functions.template'
+Using configuration file 'tests/configuration/string_functions.json'
+"#);
+}

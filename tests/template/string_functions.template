@@ -1,0 +1,3 @@
+{% string %}
+{% string | upperCase %}
+{% upper | lowerCase %}
