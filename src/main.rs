@@ -97,6 +97,30 @@ fn pascal_case(value: &String) -> String {
     return result;
 }
 
+fn capitalize(value: &String) -> String {
+    if value.is_empty() {
+        value.as_str().to_string()
+    } else {
+        let (first, rest) = value.split_at(1);
+        format!("{}{}", first.to_uppercase(), rest)
+    }
+}
+
+fn capitalize_words(value: &String) -> String {
+    let mut result = String::new();
+    let mut to_upper = true;
+    for c in value.chars() {
+        if c.is_whitespace() {
+            to_upper = true;
+            result.push(c);
+        } else {
+            result.push(if to_upper { c.to_ascii_uppercase() } else { c });
+            to_upper = false;
+        }
+    }
+    return result;
+}
+
 fn apply_function(value: &Value, function: &str) -> Result<Value, TemplateRenderError> {
     return match function {
         "lowerCase" => {
@@ -132,6 +156,18 @@ fn apply_function(value: &Value, function: &str) -> Result<Value, TemplateRender
         "pascalCase" => {
             match value {
                 Value::String(string) => Ok(Value::String(pascal_case(string))),
+                _ => Err(TypeError(type_of(&value)))
+            }
+        }
+        "capitalize" => {
+            match value {
+                Value::String(string) => Ok(Value::String(capitalize(string))),
+                _ => Err(TypeError(type_of(&value)))
+            }
+        }
+        "capitalizeWords" => {
+            match value {
+                Value::String(string) => Ok(Value::String(capitalize_words(string))),
                 _ => Err(TypeError(type_of(&value)))
             }
         }

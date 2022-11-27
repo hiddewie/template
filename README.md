@@ -99,6 +99,12 @@ Loop over arrays with `for` and `else`:
 
 - `upperCase`: transform a string into upper case.
 - `lowerCase`: transform a string into lower case.
+- `kebabCase`: transform a string into kebab case: `lowercase-words-joined-with-dashes`.
+- `snakeCase`: transform a string into snake case: `lowercase_words_joined_with_underscores`.
+- `camelCase`: transform a string into camel case: `capitalizedWordsWithoutSpaces`.
+- `pascalCase`: transform a string into pascal case: `CapitalizedWordsWithoutSpaces`.
+- `capitalize`: make the first character uppercase.
+- `capitalizeWords`: make the first character of every word uppercase.
 
 ## Development
 

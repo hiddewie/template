@@ -305,6 +305,8 @@ kebabCase: string-with-spaces
 camelCase: stringWithSpaces
 snakeCase: string_with_spaces
 pascalCase: StringWithSpaces
+capitalize: String with spaces
+capitalizeWords: String With Spaces
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'

@@ -7,3 +7,5 @@ kebabCase: {% with-spaces | kebabCase %}
 camelCase: {% with-spaces | camelCase %}
 snakeCase: {% with-spaces | snakeCase %}
 pascalCase: {% with-spaces | pascalCase %}
+capitalize: {% with-spaces | capitalize %}
+capitalizeWords: {% with-spaces | capitalizeWords %}
