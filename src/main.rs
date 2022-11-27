@@ -4,6 +4,7 @@ extern crate pest;
 extern crate pest_derive;
 
 use std::cell::RefCell;
+use std::fmt::{Debug, Display, Formatter};
 use std::process::exit;
 use std::rc::Rc;
 
@@ -13,6 +14,7 @@ use pest::iterators::Pairs;
 use pest::Parser;
 use serde_json::error::Category;
 use serde_json::Value;
+use crate::TemplateRenderError::TypeError;
 
 #[derive(Parser)]
 #[grammar = "template.pest"]
@@ -27,18 +29,38 @@ struct Cli {
     config: std::path::PathBuf,
 }
 
-fn apply_function(value: &Value, function: &str) -> Option<Value> {
+fn type_of<T>(_: &T) -> String {
+    format!("{}", std::any::type_name::<T>())
+}
+
+#[derive(Debug)]
+enum TemplateRenderError {
+    TypeError(String),
+}
+
+impl Display for TemplateRenderError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TypeError(string) => {
+                f.write_str(format!("Invalid type {}", string.as_str()).as_str())?;
+            }
+        }
+        return Ok(());
+    }
+}
+
+fn apply_function(value: &Value, function: &str) -> Result<Value, TemplateRenderError> {
     return match function {
         "lower" => {
             match value {
-                Value::String(string) => Some(Value::String(string.to_lowercase())),
-                _ => None
+                Value::String(string) => Ok(Value::String(string.to_lowercase())),
+                _ => Err(TypeError(type_of(&value)))
             }
         }
         "upper" => {
             match value {
-                Value::String(string) => Some(Value::String(string.to_uppercase())),
-                _ => None
+                Value::String(string) => Ok(Value::String(string.to_uppercase())),
+                _ => Err(TypeError(type_of(&value)))
             }
         }
         _ => unreachable!()
@@ -56,14 +78,14 @@ fn format_string(value: &Value) -> String {
     }
 }
 
-fn evaluate(value: &Value, expression: &mut Pairs<Rule>) -> Option<Value> {
+fn evaluate(value: &Value, expression: &mut Pairs<Rule>) -> Result<Value, TemplateRenderError> {
     let properties = expression.next().unwrap();
 
     let mut current_value = value.clone();
     for property in properties.into_inner() {
         match property.as_rule() {
             Rule::property => {
-                current_value = current_value[property.as_str()].take();
+                current_value = current_value[property.as_str()].clone();
             }
             _ => unreachable!(),
         }
@@ -77,10 +99,10 @@ fn evaluate(value: &Value, expression: &mut Pairs<Rule>) -> Option<Value> {
             _ => unreachable!(),
         }
     }
-    return Some(result);
+    return Ok(result);
 }
 
-fn evaluate_boolean(value: &Value, expression: &mut Pairs<Rule>) -> Option<bool> {
+fn evaluate_boolean(value: &Value, expression: &mut Pairs<Rule>) -> Result<bool, TemplateRenderError> {
     return evaluate(value, expression)
         .map(|result|
             match result {
@@ -97,7 +119,7 @@ fn evaluate_boolean(value: &Value, expression: &mut Pairs<Rule>) -> Option<bool>
         );
 }
 
-fn evaluate_template(data: &Value, record: Pair<Rule>) -> String {
+fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, TemplateRenderError> {
     let mut result = String::new();
 
     let mut inner_rules = record.into_inner();
@@ -143,7 +165,7 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> String {
                             result.push_str(if_inner.as_str())
                         }
                     }
-                    Rule::template => result.push_str(evaluate_template(&data, if_inner).as_str()),
+                    Rule::template => result.push_str(evaluate_template(&data, if_inner)?.as_str()),
                     _ => unreachable!(),
                 }
             }
@@ -189,17 +211,18 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> String {
                     Rule::template => {
                         let zipped = iterables.iter().zip(iterables_results.iter());
                         for (iterable, iterable_result) in zipped {
-                            iterable_result.replace_with(|current_result| {
-                                let context_value = match data {
-                                    Value::Object(map) => {
-                                        let mut q = map.clone();
-                                        q.insert(iterable_name.to_string(), iterable.clone());
-                                        Value::Object(q)
-                                    }
-                                    _ => iterable.clone(),
-                                };
-                                format!("{}{}", current_result, evaluate_template(&context_value, for_inner.clone()))
-                            });
+                            let context_value = match data {
+                                Value::Object(map) => {
+                                    let mut q = map.clone();
+                                    q.insert(iterable_name.to_string(), iterable.clone());
+                                    Value::Object(q)
+                                }
+                                _ => iterable.clone(),
+                            };
+                            let template_result = evaluate_template(&context_value, for_inner.clone())?;
+                            iterable_result.replace_with(|current_result|
+                                format!("{}{}", current_result, template_result)
+                            );
                         }
                     }
                     _ => unreachable!(),
@@ -214,35 +237,36 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> String {
         Rule::expression_template => {
             let mut inner_rules = expression.into_inner();
             let expression = inner_rules.next().unwrap();
-            let evaluation_result = evaluate(&data, &mut expression.into_inner()).unwrap_or(Value::Null);
+            let evaluation_result = evaluate(&data, &mut expression.into_inner())?;
             result.push_str(format_string(&evaluation_result).to_string().as_str())
         }
         Rule::comment => (),
         _ => unreachable!(),
     }
 
-    return result;
+    return Ok(result);
 }
 
-fn evaluate_file(data: &Value, file: Pair<Rule>) -> String {
+fn evaluate_file(data: &Value, file: Pair<Rule>) -> Result<String, TemplateRenderError> {
     let mut result = String::new();
 
     for record in file.into_inner() {
         match record.as_rule() {
-            Rule::template => result.push_str(evaluate_template(&data, record).as_str()),
+            Rule::template => result.push_str(evaluate_template(&data, record)?.as_str()),
             Rule::character => result.push_str(record.as_str()),
             Rule::EOI => (),
             _ => unreachable!(),
         }
     }
 
-    return result;
+    return Ok(result);
 }
 
 static ERR_TEMPLATE_FILE: i32 = 1;
 static ERR_CONFIGURATION_FILE: i32 = 2;
 static ERR_PARSING_CONFIGURATION: i32 = 3;
 static ERR_PARSING_TEMPLATE: i32 = 4;
+static ERR_RENDERING_TEMPLATE: i32 = 5;
 
 fn main() {
     let args: Cli = Cli::parse();
@@ -287,6 +311,15 @@ fn main() {
         })
         .next().unwrap();
 
-    let result = evaluate_file(&configuration, file);
+    let result = evaluate_file(&configuration, file)
+        .unwrap_or_else(|template_render_error| {
+            match template_render_error {
+                TypeError(value) => {
+                    eprintln!("ERROR: Could not render template: {}", value);
+                }
+            }
+            exit(ERR_RENDERING_TEMPLATE)
+        });
+
     print!("{}", result);
 }

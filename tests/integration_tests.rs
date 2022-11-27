@@ -267,3 +267,21 @@ false
 Using configuration file 'tests/configuration/empty.json'
 "#);
 }
+
+#[test]
+fn function_error() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/function_error.template")
+        .arg("tests/configuration/function_error.json")
+        .assert();
+
+    assert
+        .failure()
+        .code(5)
+        .stdout("")
+        .stderr(r#"Using template file 'tests/template/function_error.template'
+Using configuration file 'tests/configuration/function_error.json'
+ERROR: Could not render template: &serde_json::value::Value
+"#);
+}
