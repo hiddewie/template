@@ -79,6 +79,18 @@ This is not a loop
 This is rendered
 ```
 
+### Literals
+
+```
+Null: {% null %}
+Boolean: {% true %} and {% false %}
+Integer: {% 0 %}, {% -0 %}, {% -100 %} and {% 100 %}
+Floating point: {% .0 %}, {% 0. %}, {% -1.0 %}, {% 10.47e1 %} and {% -1.47e-10 %}
+String: {% "" %} and {% "value" %}
+Array: {% [] %}, {% [1] %} and {% ["", null, expression, [], {}, ] %}
+Dictionary: {% {} %}, {% {a:1} %} and {% {item: expression, " space ": "spacy", "array": [], } %}
+```
+
 ### Flow control
 
 Test expressions with `if`, `elif` and `else`:
