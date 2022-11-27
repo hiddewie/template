@@ -46,7 +46,7 @@ Configuration
 ```
 with template
 ```
-{% value %}{% nested.value %}{% does_not_exist %}!
+{% value %} {% nested.value %}{% does_not_exist %}!
 ```
 renders output
 ```

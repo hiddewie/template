@@ -1,7 +1,5 @@
 use assert_cmd::Command;
 
-// println!("{}", String::from_utf8(assert.get_output().stderr.clone()).unwrap());
-
 #[test]
 fn template_does_not_exist() {
     let mut cmd = Command::cargo_bin("template").unwrap();
@@ -20,6 +18,24 @@ ERROR: Could not read template file 'tests/template/does_not_exist.template': No
 }
 
 #[test]
+fn configuration_does_not_exist() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/empty.template")
+        .arg("tests/configuration/does_not_exist.json")
+        .assert();
+
+    assert
+        .failure()
+        .code(2)
+        .stdout("")
+        .stderr(r#"Using template file 'tests/template/empty.template'
+Using configuration file 'tests/configuration/does_not_exist.json'
+ERROR: Could not read configuration file 'tests/configuration/does_not_exist.json': No such file or directory (os error 2)
+"#);
+}
+
+#[test]
 fn empty_template() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
@@ -31,7 +47,7 @@ fn empty_template() {
         .success()
         .stdout("")
         .stderr(r#"Using template file 'tests/template/empty.template'
-Configuration path 'tests/configuration/empty.json'
+Using configuration file 'tests/configuration/empty.json'
 "#);
 }
 
@@ -54,7 +70,7 @@ line4
 done
 "#)
         .stderr(r#"Using template file 'tests/template/no_variables.template'
-Configuration path 'tests/configuration/empty.json'
+Using configuration file 'tests/configuration/empty.json'
 "#);
 }
 
@@ -79,7 +95,7 @@ false
 end
 "#)
         .stderr(r#"Using template file 'tests/template/variables.template'
-Configuration path 'tests/configuration/variables.json'
+Using configuration file 'tests/configuration/variables.json'
 "#);
 }
 
@@ -97,7 +113,7 @@ fn missing_configuration_value() {
 !!
 "#)
         .stderr(r#"Using template file 'tests/template/a.template'
-Configuration path 'tests/configuration/empty.json'
+Using configuration file 'tests/configuration/empty.json'
 "#);
 }
 
@@ -133,7 +149,7 @@ else
 else
 "#)
         .stderr(r#"Using template file 'tests/template/if_else.template'
-Configuration path 'tests/configuration/if_else.json'
+Using configuration file 'tests/configuration/if_else.json'
 "#);
 }
 
@@ -144,8 +160,6 @@ fn iteration() {
         .arg("tests/template/iteration.template")
         .arg("tests/configuration/iteration.json")
         .assert();
-
-    println!("{}", std::str::from_utf8(&*assert.get_output().stderr).unwrap().to_string());
 
     assert
         .success()
@@ -170,7 +184,7 @@ loop end
 
 "#)
         .stderr(r#"Using template file 'tests/template/iteration.template'
-Configuration path 'tests/configuration/iteration.json'
+Using configuration file 'tests/configuration/iteration.json'
 "#);
 }
 
@@ -182,8 +196,6 @@ fn comments() {
         .arg("tests/configuration/empty.json")
         .assert();
 
-    println!("{}", std::str::from_utf8(&*assert.get_output().stderr).unwrap().to_string());
-
     assert
         .success()
         .stdout(r#"
@@ -194,6 +206,6 @@ false
 
 "#)
         .stderr(r#"Using template file 'tests/template/comments.template'
-Configuration path 'tests/configuration/empty.json'
+Using configuration file 'tests/configuration/empty.json'
 "#);
 }

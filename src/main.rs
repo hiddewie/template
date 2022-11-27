@@ -238,26 +238,37 @@ fn evaluate_file(data: &Value, file: Pair<Rule>) -> String {
     return result;
 }
 
+static ERR_TEMPLATE_FILE: i32 = 1;
+static ERR_CONFIGURATION_FILE: i32 = 2;
+
 fn main() {
     let args: Cli = Cli::parse();
     let path = args.path;
     let utf8_path = path.to_str().unwrap_or("<path not representable in UTF-8>");
     eprintln!("Using template file '{}'", utf8_path);
 
-    let maybe_template_content = std::fs::read_to_string(utf8_path);
+    let maybe_template_content = std::fs::read_to_string(path.clone());
     let template_content = match maybe_template_content {
         Ok(content) => content,
         Err(error) => {
             eprintln!("ERROR: Could not read template file '{}': {}", utf8_path, error);
-            exit(1);
+            exit(ERR_TEMPLATE_FILE);
         }
     };
 
     let config = args.config;
-    eprintln!("Configuration path '{}'", config.to_str().unwrap());
+    let utf8_config_path = config.to_str().unwrap_or("<path not representable in UTF-8>");
+    eprintln!("Using configuration file '{}'", utf8_config_path);
 
-    let content = std::fs::read_to_string(config).unwrap();
-    let data: Value = serde_json::from_str(content.as_str()).unwrap();
+    let maybe_configuration_content = std::fs::read_to_string(config.clone());
+    let configuration_content = match maybe_configuration_content {
+        Ok(content) => content,
+        Err(error) => {
+            eprintln!("ERROR: Could not read configuration file '{}': {}", utf8_config_path, error);
+            exit(ERR_CONFIGURATION_FILE);
+        }
+    };
+    let data: Value = serde_json::from_str(configuration_content.as_str()).unwrap();
 
     let file = TemplateParser::parse(Rule::file, &template_content)
         .unwrap_or_else(|e| panic!("Could not parse template\n{}", e))
