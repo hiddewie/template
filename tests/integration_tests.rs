@@ -52,6 +52,22 @@ Using configuration file 'tests/configuration/empty.json'
 }
 
 #[test]
+fn hello_world() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/hello_world.template")
+        .arg("tests/configuration/hello_world.json")
+        .assert();
+
+    assert
+        .success()
+        .stdout("Hello world!")
+        .stderr(r#"Using template file 'tests/template/hello_world.template'
+Using configuration file 'tests/configuration/hello_world.json'
+"#);
+}
+
+#[test]
 fn no_variables() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
