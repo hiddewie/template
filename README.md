@@ -20,8 +20,12 @@ The output is rendered to the standard output stream. Log messages are output to
 
 ### Exit codes
 
-- 0: Success. The standard output contains the rendered template.
-- 101: Panic. An unexpected error has occurred which was not handled correctly. Please [create an issue](https://github.com/hiddewie/template/issues) to report the configuration, the template and the error output.
+- `0`: Success. The standard output contains the rendered template.
+- `1`: Template file cannot be read.
+- `2`: Configuration file cannot be read.
+- `3`: Configuration file cannot be parsed.
+- `4`: Template file cannot be parsed.
+- `101`: Panic. An unexpected error has occurred, and was not handled correctly. Please [create an issue](https://github.com/hiddewie/template/issues) to report the configuration, the template and the error output.
 
 ## Configuration
 
