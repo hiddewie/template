@@ -93,6 +93,13 @@ Loop over arrays with `for` and `else`:
 {% end %}
 ```
 
+### Functions
+
+#### String functions
+
+- `upperCase`: transform a string into upper case.
+- `lowerCase`: transform a string into lower case.
+
 ## Development
 
 ### Build

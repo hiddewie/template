@@ -51,13 +51,13 @@ impl Display for TemplateRenderError {
 
 fn apply_function(value: &Value, function: &str) -> Result<Value, TemplateRenderError> {
     return match function {
-        "lower" => {
+        "lowerCase" => {
             match value {
                 Value::String(string) => Ok(Value::String(string.to_lowercase())),
                 _ => Err(TypeError(type_of(&value)))
             }
         }
-        "upper" => {
+        "upperCase" => {
             match value {
                 Value::String(string) => Ok(Value::String(string.to_uppercase())),
                 _ => Err(TypeError(type_of(&value)))
