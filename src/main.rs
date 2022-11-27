@@ -14,8 +14,8 @@ use pest::iterators::Pair;
 use pest::iterators::Pairs;
 use pest::Parser;
 use regex::Regex;
+use serde_json::{Map, Value};
 use serde_json::error::Category;
-use serde_json::Value;
 
 #[derive(Parser)]
 #[grammar = "template.pest"]
@@ -203,7 +203,7 @@ fn format_string(value: &Value) -> String {
     }
 }
 
-fn parse_literal(literal: &Pair<Rule>) -> Result<Value, TemplateRenderError> {
+fn parse_literal(value: &Value, literal: &Pair<Rule>) -> Result<Value, TemplateRenderError> {
     let content = literal.as_str().to_string();
     match literal.as_rule() {
         Rule::null => Ok(Value::Null),
@@ -221,16 +221,29 @@ fn parse_literal(literal: &Pair<Rule>) -> Result<Value, TemplateRenderError> {
         }
         Rule::string => content.parse::<String>()
             .map_err(|_err| TemplateRenderError::LiteralParseError(content))
-            .map(|result| Value::from(&result[1..result.len()-1])),
+            .map(|result| Value::from(&result[1..result.len() - 1])),
         Rule::array => {
             let array: Result<Vec<Value>, TemplateRenderError> = literal.clone().into_inner()
                 .into_iter()
-                .map(|inner_literal| parse_literal(&inner_literal.into_inner().next().unwrap()))
+                .map(|inner_literal| evaluate(&value, &mut inner_literal.into_inner()))
                 .collect();
 
             array.map(|result| Value::Array(result))
         }
-        _ => unreachable!("{}", literal)
+        Rule::dictionary => {
+            let mut result = Map::new();
+            for pair in literal.clone().into_inner() {
+                let mut key_value_content = pair.into_inner();
+                let pair_key = key_value_content.next().unwrap().as_str();
+                let pair_value = key_value_content.next().unwrap();
+                let evaluated_pair_value = evaluate(&value, &mut pair_value.into_inner())?;
+
+                result.insert(pair_key.to_string(), evaluated_pair_value);
+            }
+
+            Ok(Value::Object(result))
+        }
+        _ => unreachable!()
     }
 }
 
@@ -239,7 +252,7 @@ fn evaluate(value: &Value, expression: &mut Pairs<Rule>) -> Result<Value, Templa
 
     let current_value = match properties_or_literal.as_rule() {
         Rule::literal => {
-            parse_literal(&properties_or_literal.into_inner().next().unwrap())?
+            parse_literal(&value, &properties_or_literal.into_inner().next().unwrap())?
         }
         Rule::properties => {
             let mut current_value = value.clone();

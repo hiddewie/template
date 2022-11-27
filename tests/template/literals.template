@@ -23,4 +23,8 @@ string: {% "string" %}
 array: {% [] %}
 array: {% [ ] %}
 array: {% [ 1 ] %}
-array: {% [ "", "a",1, 1., ] %}
+array: {% [ "", "a",1, 1., integer, string ] %}
+dictionary: {% {} %}
+dictionary: {% { } %}
+dictionary: {% {a: b} %}
+dictionary: {% {a: "b", c: 1, d: null, e: .1, " spaceee ": "space!", integer: integer, string: string} %}

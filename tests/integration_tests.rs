@@ -320,7 +320,7 @@ fn literals() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
         .arg("tests/template/literals.template")
-        .arg("tests/configuration/empty.json")
+        .arg("tests/configuration/literals.json")
         .assert();
 
     assert
@@ -350,9 +350,13 @@ string: string
 array: []
 array: []
 array: [1]
-array: [,a,1,1.0]
+array: [,a,1,1.0,1,string]
+dictionary: {}
+dictionary: {}
+dictionary: {a:}
+dictionary: {" spaceee ":space!,a:b,c:1,d:,e:0.1,integer:1,string:string}
 "#)
         .stderr(r#"Using template file 'tests/template/literals.template'
-Using configuration file 'tests/configuration/empty.json'
+Using configuration file 'tests/configuration/literals.json'
 "#);
 }
