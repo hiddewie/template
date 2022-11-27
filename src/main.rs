@@ -4,6 +4,7 @@ extern crate pest;
 extern crate pest_derive;
 
 use std::cell::RefCell;
+use std::process::exit;
 use std::rc::Rc;
 
 use clap::Parser as ClapParser;
@@ -240,9 +241,17 @@ fn evaluate_file(data: &Value, file: Pair<Rule>) -> String {
 fn main() {
     let args: Cli = Cli::parse();
     let path = args.path;
-    eprintln!("Template path '{}'", path.to_str().unwrap());
+    let utf8_path = path.to_str().unwrap_or("<path not representable in UTF-8>");
+    eprintln!("Using template file '{}'", utf8_path);
 
-    let template_content = std::fs::read_to_string(path).unwrap();
+    let maybe_template_content = std::fs::read_to_string(utf8_path);
+    let template_content = match maybe_template_content {
+        Ok(content) => content,
+        Err(error) => {
+            eprintln!("ERROR: Could not read template file '{}': {}", utf8_path, error);
+            exit(1);
+        }
+    };
 
     let config = args.config;
     eprintln!("Configuration path '{}'", config.to_str().unwrap());

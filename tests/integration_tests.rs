@@ -1,5 +1,24 @@
 use assert_cmd::Command;
 
+// println!("{}", String::from_utf8(assert.get_output().stderr.clone()).unwrap());
+
+#[test]
+fn template_does_not_exist() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/does_not_exist.template")
+        .arg("tests/configuration/empty.json")
+        .assert();
+
+    assert
+        .failure()
+        .code(1)
+        .stdout("")
+        .stderr(r#"Using template file 'tests/template/does_not_exist.template'
+ERROR: Could not read template file 'tests/template/does_not_exist.template': No such file or directory (os error 2)
+"#);
+}
+
 #[test]
 fn empty_template() {
     let mut cmd = Command::cargo_bin("template").unwrap();
@@ -11,7 +30,7 @@ fn empty_template() {
     assert
         .success()
         .stdout("")
-        .stderr(r#"Template path 'tests/template/empty.template'
+        .stderr(r#"Using template file 'tests/template/empty.template'
 Configuration path 'tests/configuration/empty.json'
 "#);
 }
@@ -34,7 +53,7 @@ line4
 
 done
 "#)
-        .stderr(r#"Template path 'tests/template/no_variables.template'
+        .stderr(r#"Using template file 'tests/template/no_variables.template'
 Configuration path 'tests/configuration/empty.json'
 "#);
 }
@@ -59,7 +78,7 @@ false
 [1,2,3]
 end
 "#)
-        .stderr(r#"Template path 'tests/template/variables.template'
+        .stderr(r#"Using template file 'tests/template/variables.template'
 Configuration path 'tests/configuration/variables.json'
 "#);
 }
@@ -77,7 +96,7 @@ fn missing_configuration_value() {
         .stdout(r#"!!
 !!
 "#)
-        .stderr(r#"Template path 'tests/template/a.template'
+        .stderr(r#"Using template file 'tests/template/a.template'
 Configuration path 'tests/configuration/empty.json'
 "#);
 }
@@ -113,7 +132,7 @@ else
 
 else
 "#)
-        .stderr(r#"Template path 'tests/template/if_else.template'
+        .stderr(r#"Using template file 'tests/template/if_else.template'
 Configuration path 'tests/configuration/if_else.json'
 "#);
 }
@@ -150,7 +169,7 @@ loop end
 
 
 "#)
-        .stderr(r#"Template path 'tests/template/iteration.template'
+        .stderr(r#"Using template file 'tests/template/iteration.template'
 Configuration path 'tests/configuration/iteration.json'
 "#);
 }
@@ -174,7 +193,7 @@ false
 
 
 "#)
-        .stderr(r#"Template path 'tests/template/comments.template'
+        .stderr(r#"Using template file 'tests/template/comments.template'
 Configuration path 'tests/configuration/empty.json'
 "#);
 }
