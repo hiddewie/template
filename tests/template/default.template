@@ -1,0 +1,16 @@
+{% null | default("default") %}
+{% true | default("not") %}
+{% false | default("default") %}
+{% 1 | default("not") %}
+{% -1 | default("not") %}
+{% 0 | default("default") %}
+{% -0 | default("default") %}
+{% 0.0 | default("default") %}
+{% 100.0 | default("not") %}
+{% -100.0 | default("not") %}
+{% "" | default("default") %}
+{% "non empty" | default("not") %}
+{% [] | default("default") %}
+{% [1] | default("not") %}
+{% {} | default("default") %}
+{% {a:"a"} | default("not") %}

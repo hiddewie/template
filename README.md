@@ -116,6 +116,15 @@ Loop over arrays with `for` and `else`:
 
 ### Functions
 
+Apply a function in a template by using the pipe `|` operator:
+```
+{% value | function1 | function2 | function3 %}
+```
+
+#### General functions
+
+- `default(value)`: default value if the argument is falsy.
+
 #### String functions
 
 - `length`: length of the string.

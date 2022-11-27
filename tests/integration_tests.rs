@@ -396,3 +396,35 @@ dictionary: {" spaceee ":space!,a:b,c:1,d:,e:0.1,integer:1,string:string}
 Using configuration file 'tests/configuration/literals.json'
 "#);
 }
+
+#[test]
+fn default() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/default.template")
+        .arg("tests/configuration/empty.json")
+        .assert();
+
+    assert
+        .success()
+        .stdout(r#"default
+true
+default
+1
+-1
+default
+default
+default
+100.0
+-100.0
+default
+non empty
+default
+[1]
+default
+{a:a}
+"#)
+        .stderr(r#"Using template file 'tests/template/default.template'
+Using configuration file 'tests/configuration/empty.json'
+"#);
+}

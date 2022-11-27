@@ -38,6 +38,7 @@ fn type_of<T>(_: &T) -> String {
 enum TemplateRenderError {
     TypeError(String),
     LiteralParseError(String),
+    RequiredArgumentMissing(String),
 }
 
 impl Display for TemplateRenderError {
@@ -45,6 +46,7 @@ impl Display for TemplateRenderError {
         match self {
             TemplateRenderError::TypeError(string) => f.write_str(format!("Invalid type {}", string.as_str()).as_str())?,
             TemplateRenderError::LiteralParseError(string) => f.write_str(format!("Could not parse literal '{}'", string.as_str()).as_str())?,
+            TemplateRenderError::RequiredArgumentMissing(string) => f.write_str(format!("Required argument is missing for function {}", string.as_str()).as_str())?,
         }
         return Ok(());
     }
@@ -66,14 +68,11 @@ fn camel_case(value: &String) -> String {
     let mut result = String::new();
     let mut to_upper = false;
     for c in value.chars() {
-        match c {
-            'a'..='z' | 'A'..='Z' | '0'..='9' => {
-                result.push(if to_upper { c.to_ascii_uppercase() } else { c });
-                to_upper = false;
-            }
-            _ => {
-                to_upper = true;
-            }
+        if c.is_alphanumeric() {
+            result.push(if to_upper { c.to_ascii_uppercase() } else { c });
+            to_upper = false;
+        } else {
+            to_upper = true;
         }
     }
     return result;
@@ -83,14 +82,11 @@ fn pascal_case(value: &String) -> String {
     let mut result = String::new();
     let mut to_upper = true;
     for c in value.chars() {
-        match c {
-            'a'..='z' | 'A'..='Z' | '0'..='9' => {
-                result.push(if to_upper { c.to_ascii_uppercase() } else { c });
-                to_upper = false;
-            }
-            _ => {
-                to_upper = true;
-            }
+        if c.is_alphanumeric() {
+            result.push(if to_upper { c.to_ascii_uppercase() } else { c });
+            to_upper = false;
+        } else {
+            to_upper = true;
         }
     }
     return result;
@@ -124,7 +120,15 @@ fn environment(value: &String) -> Option<String> {
     return env::var(value.as_str()).ok();
 }
 
-fn apply_function(value: &Value, function: &str) -> Result<Value, TemplateRenderError> {
+fn default(value: &Value, default: &Value) -> Value {
+    if to_boolean(value) {
+        value.clone()
+    } else {
+        default.clone()
+    }
+}
+
+fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Result<Value, TemplateRenderError> {
     return match function {
         "lowerCase" => {
             match value {
@@ -189,6 +193,10 @@ fn apply_function(value: &Value, function: &str) -> Result<Value, TemplateRender
                     .unwrap_or(Value::Null)),
                 _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
+        }
+        "default" => {
+            let default_value = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("default".to_string()))?;
+            Ok(default(value, &default_value))
         }
         _ => unreachable!()
     };
@@ -274,8 +282,20 @@ fn evaluate(value: &Value, expression: &mut Pairs<Rule>) -> Result<Value, Templa
     let mut result = current_value;
     for function in expression {
         match function.as_rule() {
-            Rule::function => {
-                result = apply_function(&result, function.as_str())?;
+            Rule::function_call => {
+                let mut function_and_arguments = function.into_inner();
+                let function_name = function_and_arguments.next().unwrap().as_str();
+                let mut arguments : Vec<Value> = vec![];
+                for argument in function_and_arguments {
+                    match argument.as_rule() {
+                        Rule::expression => {
+                            arguments.push(evaluate(value, &mut argument.into_inner())?)
+                        }
+                        _ => unreachable!(),
+                    }
+                }
+
+                result = apply_function(&result, function_name, &arguments)?;
             }
             _ => unreachable!(),
         }
@@ -283,21 +303,25 @@ fn evaluate(value: &Value, expression: &mut Pairs<Rule>) -> Result<Value, Templa
     return Ok(result);
 }
 
-fn evaluate_boolean(value: &Value, expression: &mut Pairs<Rule>) -> Result<bool, TemplateRenderError> {
-    return evaluate(value, expression)
-        .map(|result|
-            match result {
-                Value::Null => false,
-                Value::Bool(bool) => bool,
-                Value::Number(number) => number.as_i64().map(|i| i == 0)
-                    .or(number.as_u64().map(|u| u == 0))
-                    .or(number.as_f64().map(|f| f == 0.0))
-                    .unwrap_or(false),
-                Value::String(string) => !string.trim().is_empty(),
-                Value::Array(items) => !items.is_empty(),
-                Value::Object(object) => !object.is_empty(),
+fn to_boolean(value: &Value) -> bool {
+    match value {
+        Value::Null => false,
+        Value::Bool(bool) => *bool,
+        Value::Number(number) => {
+            if number.is_i64() {
+                number.as_i64().unwrap() != 0
+            } else if number.is_u64() {
+                number.as_u64().unwrap() != 0
+            } else if number.is_f64() {
+                number.as_f64().unwrap() != 0.0
+            } else {
+                unreachable!();
             }
-        );
+        }
+        Value::String(string) => !string.trim().is_empty(),
+        Value::Array(items) => !items.is_empty(),
+        Value::Object(object) => !object.is_empty(),
+    }
 }
 
 fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, TemplateRenderError> {
@@ -317,7 +341,9 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, Templat
 
                         let mut if_inner_expression = if_inner.into_inner();
                         let if_expression = if_inner_expression.next().unwrap();
-                        let if_result = evaluate_boolean(&data, &mut if_expression.into_inner()).unwrap_or(false);
+                        let if_result = evaluate(&data, &mut if_expression.into_inner())
+                            .map(|value| to_boolean(&value))
+                            .unwrap_or(false);
                         if if_result {
                             done = true;
                             valid = true
@@ -328,7 +354,9 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, Templat
 
                         let mut elif_inner_expression = if_inner.into_inner();
                         let elif_expression = elif_inner_expression.next().unwrap();
-                        let elif_result = evaluate_boolean(&data, &mut elif_expression.into_inner()).unwrap_or(false);
+                        let elif_result = evaluate(&data, &mut elif_expression.into_inner())
+                            .map(|value| to_boolean(&value))
+                            .unwrap_or(false);
                         if !done && elif_result {
                             done = true;
                             valid = true
@@ -499,6 +527,9 @@ fn main() {
                     eprintln!("ERROR: Could not render template: {}", value);
                 }
                 TemplateRenderError::LiteralParseError(value) => {
+                    eprintln!("ERROR: Could not render template: {}", value);
+                }
+                TemplateRenderError::RequiredArgumentMissing(value) => {
                     eprintln!("ERROR: Could not render template: {}", value);
                 }
             }
