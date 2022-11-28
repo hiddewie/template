@@ -40,6 +40,7 @@ This software:
 ## Configuration
 
 - JSON
+- HCL
 
 ## Templating
 

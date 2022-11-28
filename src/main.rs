@@ -616,17 +616,27 @@ fn main() {
             exit(ERR_CONFIGURATION_FILE);
         });
 
-    let configuration: Value = serde_json::from_str(configuration_content.as_str())
-        .unwrap_or_else(|parse_error| {
-            let classification = match parse_error.classify() {
-                Category::Io => "I/O error",
-                Category::Syntax => "syntax error",
-                Category::Data => "data error",
-                Category::Eof => "premature end of file"
-            };
-            eprintln!("ERROR: Could not parse JSON configuration ({}): {}", classification, parse_error);
-            exit(ERR_PARSING_CONFIGURATION)
-        });
+    let configuration: Value = if utf8_config_path.ends_with(".hcl") {
+        hcl::from_str(configuration_content.as_str())
+            .unwrap_or_else(|parse_error| {
+                eprintln!("ERROR: Could not parse HCL configuration:");
+                // Formatted error on new line
+                eprintln!("{}", parse_error);
+                exit(ERR_PARSING_CONFIGURATION)
+            })
+    } else {
+        serde_json::from_str(configuration_content.as_str())
+            .unwrap_or_else(|parse_error| {
+                let classification = match parse_error.classify() {
+                    Category::Io => "I/O error",
+                    Category::Syntax => "syntax error",
+                    Category::Data => "data error",
+                    Category::Eof => "premature end of file"
+                };
+                eprintln!("ERROR: Could not parse JSON configuration ({}): {}", classification, parse_error);
+                exit(ERR_PARSING_CONFIGURATION)
+            })
+    };
 
     let file = TemplateParser::parse(Rule::file, &template_content)
         .unwrap_or_else(|parse_error| {

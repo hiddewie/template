@@ -36,7 +36,7 @@ ERROR: Could not read configuration file 'tests/configuration/does_not_exist.jso
 }
 
 #[test]
-fn invalid_configuration() {
+fn invalid_configuration_json() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
         .arg("tests/template/empty.template")
@@ -50,6 +50,30 @@ fn invalid_configuration() {
         .stderr(r#"Using template file 'tests/template/empty.template'
 Using configuration file 'tests/configuration/invalid.json'
 ERROR: Could not parse JSON configuration (syntax error): key must be a string at line 1 column 2
+"#);
+}
+
+#[test]
+fn invalid_configuration_hcl() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/empty.template")
+        .arg("tests/configuration/invalid.hcl")
+        .assert();
+
+    assert
+        .failure()
+        .code(3)
+        .stdout("")
+        .stderr(r#"Using template file 'tests/template/empty.template'
+Using configuration file 'tests/configuration/invalid.hcl'
+ERROR: Could not parse HCL configuration:
+ --> 2:2
+  |
+2 |  "   ]
+  |  ^---
+  |
+  = expected Identifier in line 2, col 2
 "#);
 }
 
@@ -94,7 +118,7 @@ Using configuration file 'tests/configuration/empty.json'
 }
 
 #[test]
-fn hello_world() {
+fn hello_world_json() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
         .arg("tests/template/hello_world.template")
@@ -106,6 +130,22 @@ fn hello_world() {
         .stdout("Hello world!")
         .stderr(r#"Using template file 'tests/template/hello_world.template'
 Using configuration file 'tests/configuration/hello_world.json'
+"#);
+}
+
+#[test]
+fn hello_world_hcl() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/hello_world.template")
+        .arg("tests/configuration/hello_world.hcl")
+        .assert();
+
+    assert
+        .success()
+        .stdout("Hello world!")
+        .stderr(r#"Using template file 'tests/template/hello_world.template'
+Using configuration file 'tests/configuration/hello_world.hcl'
 "#);
 }
 
