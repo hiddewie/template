@@ -39,8 +39,8 @@ This software:
 
 ## Configuration
 
-- JSON
-- HCL
+- [JSON](https://www.json.org)
+- [HCL](https://github.com/hashicorp/hcl)
 
 ## Templating
 
