@@ -32,7 +32,10 @@ function = {
     "default" |
     "reverse" |
     "split" |
-    "matches"
+    "matches" |
+    "substring" |
+    "take" |
+    "drop"
 }
 boolean = { "true" | "false" }
 floating_point_number = { "-"? ~ ((ASCII_DIGIT* ~ "." ~ ASCII_DIGIT+) | (ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT*)) ~ (("e" | "E") ~ "-"? ~ ASCII_DIGIT+)? }
@@ -44,7 +47,7 @@ array = { "[" ~ whitespace* ~ (expression ~ whitespace* ~ ("," ~ whitespace* ~ e
 key_value_pair = { (property | string) ~ whitespace* ~ ":" ~ whitespace* ~ expression }
 dictionary = { "{" ~ whitespace* ~ (key_value_pair ~ whitespace* ~ ("," ~ whitespace* ~ key_value_pair)* ~ whitespace* ~ ","?)? ~ whitespace* ~ "}" }
 literal = { boolean | number | string | null | array | dictionary }
-function_call = { function ~ whitespace* ~ ("(" ~ whitespace* ~ expression ~ whitespace* ~ ")")? }
+function_call = { function ~ whitespace* ~ ("(" ~ whitespace* ~ (expression ~ whitespace* ~ ("," ~ whitespace* ~ expression)*)? ~ whitespace* ~ ")")? }
 expression = { !keywords ~ (literal | properties) ~ whitespace* ~ ("|" ~ whitespace* ~ function_call)* }
 expression_template = { start_marker ~ whitespace* ~ expression ~ whitespace* ~ end_marker }
 if_template = { start_marker ~ whitespace* ~ keyword_if ~ whitespace+ ~ expression ~ whitespace* ~ end_marker }

@@ -14,3 +14,14 @@ reverse: {% "string" | reverse %}
 split: {% "hello world" | split(" ") %}
 matches: {% "hello world" | matches("[lo]{3} w") %}
 matches: {% "hello world" | matches("oll") %}
+substring: {% "hello world" | substring(1, 5) %}
+substring: {% "hello world" | substring(1) %}
+substring: {% "hello world" | substring(0, 1) %}
+substring:{% "hello world" | substring(0, 0) %}
+substring: {% "hello world" | substring(0, 100) %}
+take: {% "hello world" | take(100) %}
+take:{% "hello world" | take(0) %}
+take: {% "hello world" | take(3) %}
+drop:{% "hello world" | drop(100) %}
+drop: {% "hello world" | drop(0) %}
+drop: {% "hello world" | drop(3) %}

@@ -145,6 +145,9 @@ Apply a function in a template by using the pipe `|` operator:
 - `parseDecimal`: parses a decimal number.
 - `parseNumber`: parses an integer or decimal number.
 - `matches(regex)`: checks if a number matches a regular expression.
+- `substring(from)`, `substring(from, to)`: creates a substring from the string. `from` is inclusive, `to` is exclusive.
+- `take(n)`: takes the first `n` characters from the string.
+- `drop(n)`: drops the first `n` characters from the string.
 
 #### Array functions
 

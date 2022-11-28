@@ -207,7 +207,7 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
                     let mut reverted = array.clone();
                     reverted.reverse();
                     Ok(Value::Array(reverted))
-                },
+                }
                 _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
@@ -222,15 +222,14 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
                         }
                         _ => Err(TemplateRenderError::TypeError(type_of(&splitter)))
                     }
-
-                },
+                }
                 _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
         "matches" => {
             match value {
                 Value::String(string) => {
-                    let regex = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("split".to_string()))?;
+                    let regex = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("matches".to_string()))?;
                     match regex {
                         Value::String(regex_string) => {
                             let re = Regex::new(regex_string).map_err(|_err| TemplateRenderError::InvalidRegexError(string.to_string()))?;
@@ -238,7 +237,67 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
                         }
                         _ => Err(TemplateRenderError::TypeError(type_of(&regex)))
                     }
-                },
+                }
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
+            }
+        }
+        "substring" => {
+            match value {
+                Value::String(string) => {
+                    let from = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("substring".to_string()))?;
+                    let to = arguments.get(1);
+                    if let Value::Number(from_value) = from {
+                        if from_value.is_u64() {
+                            if to.is_some() {
+                                if to.unwrap().is_u64() {
+                                    Ok(Value::String(string[usize::try_from(from_value.as_u64().unwrap()).unwrap().max(0).min(string.len())..usize::try_from(to.unwrap().as_u64().unwrap()).unwrap().max(0).min(string.len())].to_string()))
+                                } else {
+                                    Err(TemplateRenderError::TypeError(type_of(&to)))
+                                }
+                            } else {
+                                Ok(Value::String(string[usize::try_from(from_value.as_u64().unwrap()).unwrap().max(0).min(string.len())..].to_string()))
+                            }
+                        } else {
+                            Err(TemplateRenderError::TypeError(type_of(&from)))
+                        }
+                    } else {
+                        Err(TemplateRenderError::TypeError(type_of(&from)))
+                    }
+                }
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
+            }
+        }
+        "take" => {
+            match value {
+                Value::String(string) => {
+                    let n = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("take".to_string()))?;
+                    if let Value::Number(n_value) = n {
+                        if n_value.is_u64() {
+                            Ok(Value::String(string[..usize::try_from(n_value.as_u64().unwrap()).unwrap().max(0).min(string.len())].to_string()))
+                        } else {
+                            Err(TemplateRenderError::TypeError(type_of(&n_value)))
+                        }
+                    } else {
+                        Err(TemplateRenderError::TypeError(type_of(&n)))
+                    }
+                }
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
+            }
+        }
+        "drop" => {
+            match value {
+                Value::String(string) => {
+                    let n = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("drop".to_string()))?;
+                    if let Value::Number(n_value) = n {
+                        if n_value.is_u64() {
+                            Ok(Value::String(string[usize::try_from(n_value.as_u64().unwrap()).unwrap().max(0).min(string.len())..].to_string()))
+                        } else {
+                            Err(TemplateRenderError::TypeError(type_of(&n_value)))
+                        }
+                    } else {
+                        Err(TemplateRenderError::TypeError(type_of(&n)))
+                    }
+                }
                 _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
@@ -329,7 +388,7 @@ fn parse_expression(value: &Value, expression: &mut Pairs<Rule>) -> Result<Value
             Rule::function_call => {
                 let mut function_and_arguments = function.into_inner();
                 let function_name = function_and_arguments.next().unwrap().as_str();
-                let mut arguments : Vec<Value> = vec![];
+                let mut arguments: Vec<Value> = vec![];
                 for argument in function_and_arguments {
                     match argument.as_rule() {
                         Rule::expression => {

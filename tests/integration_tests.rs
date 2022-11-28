@@ -313,6 +313,17 @@ reverse: gnirts
 split: [hello,world]
 matches: true
 matches: false
+substring: ello
+substring: ello world
+substring: h
+substring:
+substring: hello world
+take: hello world
+take:
+take: hel
+drop:
+drop: hello world
+drop: lo world
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'
