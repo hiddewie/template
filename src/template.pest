@@ -31,7 +31,8 @@ function = {
     "environment" |
     "default" |
     "reverse" |
-    "split"
+    "split" |
+    "matches"
 }
 boolean = { "true" | "false" }
 floating_point_number = { "-"? ~ ((ASCII_DIGIT* ~ "." ~ ASCII_DIGIT+) | (ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT*)) ~ (("e" | "E") ~ "-"? ~ ASCII_DIGIT+)? }

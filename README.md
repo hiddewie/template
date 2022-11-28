@@ -124,6 +124,7 @@ Apply a function in a template by using the pipe `|` operator:
 #### General functions
 
 - `default(value)`: default value if the argument is falsy.
+- `toString`: transform the value to a string.
 
 #### String functions
 
@@ -139,6 +140,11 @@ Apply a function in a template by using the pipe `|` operator:
 - `environment`: read an environment variable.
 - `reverse`: the string in reverse order.
 - `split(splitter)`: split the string for each occurrence of `splitter`.
+- `parseBoolean`: parses a boolean.
+- `parseInteger`: parses an integer.
+- `parseDecimal`: parses a decimal number.
+- `parseNumber`: parses an integer or decimal number.
+- `matches(regex)`: checks if a number matches a regular expression.
 
 #### Array functions
 

@@ -39,6 +39,7 @@ enum TemplateRenderError {
     TypeError(String),
     LiteralParseError(String),
     RequiredArgumentMissing(String),
+    InvalidRegexError(String),
 }
 
 impl Display for TemplateRenderError {
@@ -47,6 +48,7 @@ impl Display for TemplateRenderError {
             TemplateRenderError::TypeError(string) => f.write_str(format!("Invalid type {}", string.as_str()).as_str())?,
             TemplateRenderError::LiteralParseError(string) => f.write_str(format!("Could not parse literal '{}'", string.as_str()).as_str())?,
             TemplateRenderError::RequiredArgumentMissing(string) => f.write_str(format!("Required argument is missing for function {}", string.as_str()).as_str())?,
+            TemplateRenderError::InvalidRegexError(regex) => f.write_str(format!("Invalid regular expression given: '{}'", regex.as_str()).as_str())?,
         }
         return Ok(());
     }
@@ -212,7 +214,7 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
         "split" => {
             match value {
                 Value::String(string) => {
-                    let splitter = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("default".to_string()))?;
+                    let splitter = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("split".to_string()))?;
                     match splitter {
                         Value::String(splitter_string) => {
                             let split_strings = string.split(splitter_string).map(|split| Value::String(split.to_string())).collect();
@@ -221,6 +223,21 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
                         _ => Err(TemplateRenderError::TypeError(type_of(&splitter)))
                     }
 
+                },
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
+            }
+        }
+        "matches" => {
+            match value {
+                Value::String(string) => {
+                    let regex = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("split".to_string()))?;
+                    match regex {
+                        Value::String(regex_string) => {
+                            let re = Regex::new(regex_string).map_err(|_err| TemplateRenderError::InvalidRegexError(string.to_string()))?;
+                            Ok(Value::Bool(re.is_match(string.as_str())))
+                        }
+                        _ => Err(TemplateRenderError::TypeError(type_of(&regex)))
+                    }
                 },
                 _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
@@ -262,7 +279,7 @@ fn parse_literal(value: &Value, literal: &Pair<Rule>) -> Result<Value, TemplateR
         Rule::array => {
             let array: Result<Vec<Value>, TemplateRenderError> = literal.clone().into_inner()
                 .into_iter()
-                .map(|inner_literal| evaluate(&value, &mut inner_literal.into_inner()))
+                .map(|inner_literal| parse_expression(&value, &mut inner_literal.into_inner()))
                 .collect();
 
             array.map(|result| Value::Array(result))
@@ -273,7 +290,7 @@ fn parse_literal(value: &Value, literal: &Pair<Rule>) -> Result<Value, TemplateR
                 let mut key_value_content = pair.into_inner();
                 let pair_key = key_value_content.next().unwrap().as_str();
                 let pair_value = key_value_content.next().unwrap();
-                let evaluated_pair_value = evaluate(&value, &mut pair_value.into_inner())?;
+                let evaluated_pair_value = parse_expression(&value, &mut pair_value.into_inner())?;
 
                 result.insert(pair_key.to_string(), evaluated_pair_value);
             }
@@ -284,7 +301,7 @@ fn parse_literal(value: &Value, literal: &Pair<Rule>) -> Result<Value, TemplateR
     }
 }
 
-fn evaluate(value: &Value, expression: &mut Pairs<Rule>) -> Result<Value, TemplateRenderError> {
+fn parse_expression(value: &Value, expression: &mut Pairs<Rule>) -> Result<Value, TemplateRenderError> {
     let properties_or_literal = expression.next().unwrap();
 
     let current_value = match properties_or_literal.as_rule() {
@@ -316,7 +333,7 @@ fn evaluate(value: &Value, expression: &mut Pairs<Rule>) -> Result<Value, Templa
                 for argument in function_and_arguments {
                     match argument.as_rule() {
                         Rule::expression => {
-                            arguments.push(evaluate(value, &mut argument.into_inner())?)
+                            arguments.push(parse_expression(value, &mut argument.into_inner())?)
                         }
                         _ => unreachable!(),
                     }
@@ -368,7 +385,7 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, Templat
 
                         let mut if_inner_expression = if_inner.into_inner();
                         let if_expression = if_inner_expression.next().unwrap();
-                        let if_result = evaluate(&data, &mut if_expression.into_inner())
+                        let if_result = parse_expression(&data, &mut if_expression.into_inner())
                             .map(|value| to_boolean(&value))
                             .unwrap_or(false);
                         if if_result {
@@ -381,7 +398,7 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, Templat
 
                         let mut elif_inner_expression = if_inner.into_inner();
                         let elif_expression = elif_inner_expression.next().unwrap();
-                        let elif_result = evaluate(&data, &mut elif_expression.into_inner())
+                        let elif_result = parse_expression(&data, &mut elif_expression.into_inner())
                             .map(|value| to_boolean(&value))
                             .unwrap_or(false);
                         if !done && elif_result {
@@ -418,7 +435,7 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, Templat
                     Rule::for_template => {
                         let mut for_inner_expression = for_inner.into_inner();
                         iterable_name = for_inner_expression.next().unwrap().as_str();
-                        let for_iterable = evaluate(&data, &mut for_inner_expression.next().unwrap().into_inner()).unwrap();
+                        let for_iterable = parse_expression(&data, &mut for_inner_expression.next().unwrap().into_inner()).unwrap();
                         iterables = match for_iterable {
                             Value::Array(items) => items,
                             _ => vec![],
@@ -473,7 +490,7 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, Templat
         Rule::expression_template => {
             let mut inner_rules = expression.into_inner();
             let expression = inner_rules.next().unwrap();
-            let evaluation_result = evaluate(&data, &mut expression.into_inner())?;
+            let evaluation_result = parse_expression(&data, &mut expression.into_inner())?;
             result.push_str(format_string(&evaluation_result).to_string().as_str())
         }
         Rule::comment => (),
@@ -550,15 +567,10 @@ fn main() {
     let result = evaluate_file(&configuration, file)
         .unwrap_or_else(|template_render_error| {
             match template_render_error {
-                TemplateRenderError::TypeError(value) => {
-                    eprintln!("ERROR: Could not render template: {}", value);
-                }
-                TemplateRenderError::LiteralParseError(value) => {
-                    eprintln!("ERROR: Could not render template: {}", value);
-                }
-                TemplateRenderError::RequiredArgumentMissing(value) => {
-                    eprintln!("ERROR: Could not render template: {}", value);
-                }
+                TemplateRenderError::TypeError(value) => eprintln!("ERROR: Could not render template: {}", value),
+                TemplateRenderError::LiteralParseError(value) => eprintln!("ERROR: Could not render template: {}", value),
+                TemplateRenderError::RequiredArgumentMissing(value) => eprintln!("ERROR: Could not render template: {}", value),
+                TemplateRenderError::InvalidRegexError(value) => eprintln!("ERROR: Could not render template: {}", value),
             }
             exit(ERR_RENDERING_TEMPLATE)
         });

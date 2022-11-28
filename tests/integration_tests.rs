@@ -311,6 +311,8 @@ capitalizeWords: String With Spaces
 environment: env_test
 reverse: gnirts
 split: [hello,world]
+matches: true
+matches: false
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'
