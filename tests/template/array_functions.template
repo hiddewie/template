@@ -1,3 +1,9 @@
 length: {% [] | length %}
 length: {% [1,2,3] | length %}
 reverse: {% [1,2,3] | reverse %}
+take: {% [1,2,3] | take(100) %}
+take: {% [1,2,3] | take(0) %}
+take: {% [1,2,3] | take(1) %}
+drop: {% [1,2,3] | drop(100) %}
+drop: {% [1,2,3] | drop(0) %}
+drop: {% [1,2,3] | drop(1) %}

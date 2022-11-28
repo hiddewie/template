@@ -153,6 +153,9 @@ Apply a function in a template by using the pipe `|` operator:
 
 - `length`: length of the array.
 - `reverse`: the array in reverse order.
+- `take(n)`: takes the first `n` items from the array.
+- `drop(n)`: drops the first `n` items from the array.
+
 
 #### Dictionary functions
 

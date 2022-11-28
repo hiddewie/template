@@ -343,6 +343,12 @@ fn array_functions() {
         .stdout(r#"length: 0
 length: 3
 reverse: [3,2,1]
+take: [1,2,3]
+take: []
+take: [1]
+drop: []
+drop: [1,2,3]
+drop: [2,3]
 "#)
         .stderr(r#"Using template file 'tests/template/array_functions.template'
 Using configuration file 'tests/configuration/empty.json'

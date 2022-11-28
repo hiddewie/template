@@ -268,37 +268,37 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
             }
         }
         "take" => {
-            match value {
-                Value::String(string) => {
-                    let n = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("take".to_string()))?;
-                    if let Value::Number(n_value) = n {
-                        if n_value.is_u64() {
-                            Ok(Value::String(string[..usize::try_from(n_value.as_u64().unwrap()).unwrap().max(0).min(string.len())].to_string()))
-                        } else {
-                            Err(TemplateRenderError::TypeError(type_of(&n_value)))
-                        }
-                    } else {
-                        Err(TemplateRenderError::TypeError(type_of(&n)))
+            let n = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("take".to_string()))?;
+            if let Value::Number(n_value) = n {
+                if n_value.is_u64() {
+                    let to_index = usize::try_from(n_value.as_u64().unwrap()).unwrap();
+                    match value {
+                        Value::String(string) => Ok(Value::String(string[..to_index.max(0).min(string.len())].to_string())),
+                        Value::Array(array) => Ok(Value::Array(array[..to_index.max(0).min(array.len())].to_vec())),
+                        _ => Err(TemplateRenderError::TypeError(type_of(&value)))
                     }
+                } else {
+                    Err(TemplateRenderError::TypeError(type_of(&n_value)))
                 }
-                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
+            } else {
+                Err(TemplateRenderError::TypeError(type_of(&n)))
             }
         }
         "drop" => {
-            match value {
-                Value::String(string) => {
-                    let n = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("drop".to_string()))?;
-                    if let Value::Number(n_value) = n {
-                        if n_value.is_u64() {
-                            Ok(Value::String(string[usize::try_from(n_value.as_u64().unwrap()).unwrap().max(0).min(string.len())..].to_string()))
-                        } else {
-                            Err(TemplateRenderError::TypeError(type_of(&n_value)))
-                        }
-                    } else {
-                        Err(TemplateRenderError::TypeError(type_of(&n)))
+            let n = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("drop".to_string()))?;
+            if let Value::Number(n_value) = n {
+                if n_value.is_u64() {
+                    let from_index = usize::try_from(n_value.as_u64().unwrap()).unwrap();
+                    match value {
+                        Value::String(string) => Ok(Value::String(string[from_index.max(0).min(string.len())..].to_string())),
+                        Value::Array(array) => Ok(Value::Array(array[from_index.max(0).min(array.len())..].to_vec())),
+                        _ => Err(TemplateRenderError::TypeError(type_of(&value)))
                     }
+                } else {
+                    Err(TemplateRenderError::TypeError(type_of(&n_value)))
                 }
-                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
+            } else {
+                Err(TemplateRenderError::TypeError(type_of(&n)))
             }
         }
         _ => unreachable!()
