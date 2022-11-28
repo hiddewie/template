@@ -45,7 +45,7 @@ This software:
 
 See [Pest grammar](./src/template.pest) for formal template grammar.
 
-Extension recommended `.template`, but not enforced.
+It is recommended to use the extension `.template` for template files.
 
 ### Render configuration data
 
