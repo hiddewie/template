@@ -7,3 +7,7 @@ take: {% [1,2,3] | take(1) %}
 drop: {% [1,2,3] | drop(100) %}
 drop: {% [1,2,3] | drop(0) %}
 drop: {% [1,2,3] | drop(1) %}
+first: {% [1,2,3] | first %}
+first:{% [] | first %}
+last: {% [1,2,3] | last %}
+last:{% [] | last %}

@@ -349,6 +349,10 @@ take: [1]
 drop: []
 drop: [1,2,3]
 drop: [2,3]
+first: 1
+first:
+last: 3
+last:
 "#)
         .stderr(r#"Using template file 'tests/template/array_functions.template'
 Using configuration file 'tests/configuration/empty.json'
