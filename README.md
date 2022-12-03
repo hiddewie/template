@@ -1,19 +1,19 @@
-# template
+# Template
 
-CLI for templating based on JSON, YAML or HCL configuration
+CLI for templating based on JSON, YAML or HCL configuration.
 
 ## Installation
 
-Compile with
+Install with
 ```shell
-cargo build --release
+cargo install template-cli
 ```
 
 ## Usage
 
 Run the `template` CLI with
 ```shell
-target/release/template path/to/template.template path/to/configuration.json
+template ./path/to/template.template ./path/to/configuration.json
 ```
 
 The output is rendered to the standard output stream. Log messages are output to the standard error stream.
