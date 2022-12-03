@@ -115,7 +115,7 @@ ERROR: Could not parse template
 1 | {%
   |   ^---
   |
-  = expected expression
+  = expected keyword_if, keyword_unless, or expression
 "#);
 }
 
@@ -276,6 +276,14 @@ fn if_else() {
     assert
         .success()
         .stdout(r#"
+else
+
+
+
+false
+
+
+
 else
 
 

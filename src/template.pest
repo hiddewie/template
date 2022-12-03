@@ -4,13 +4,15 @@ start_marker = _{ "{%" }
 end_marker = _{ "%}" }
 comment_start_marker = _{ "{#" }
 comment_end_marker = _{ "#}" }
-keyword_if = _{ "if" }
+keyword_if = { "if" }
+keyword_unless = { "unless" }
 keyword_elif = _{ "elif" }
 keyword_else = _{ "else" }
 keyword_end = _{ "end" }
 keyword_for = _{ "for" }
 keywords = _{
     keyword_if |
+    keyword_unless |
     keyword_elif |
     keyword_else |
     keyword_end |
@@ -52,7 +54,7 @@ literal = { boolean | number | string | null | array | dictionary }
 function_call = { function ~ whitespace* ~ ("(" ~ whitespace* ~ (expression ~ whitespace* ~ ("," ~ whitespace* ~ expression)*)? ~ whitespace* ~ ")")? }
 expression = { !keywords ~ (literal | properties) ~ whitespace* ~ ("|" ~ whitespace* ~ function_call)* }
 expression_template = { start_marker ~ whitespace* ~ expression ~ whitespace* ~ end_marker }
-if_template = { start_marker ~ whitespace* ~ keyword_if ~ whitespace+ ~ expression ~ whitespace* ~ end_marker }
+if_template = { start_marker ~ whitespace* ~ (keyword_unless | keyword_if) ~ whitespace+ ~ expression ~ whitespace* ~ end_marker }
 elif_template = { start_marker ~ whitespace* ~ keyword_elif ~ whitespace+ ~ expression ~ whitespace* ~ end_marker }
 else_template = { start_marker ~ whitespace* ~ keyword_else ~ whitespace* ~ end_marker }
 end_template = { start_marker ~ whitespace* ~ keyword_end ~ whitespace* ~ end_marker }

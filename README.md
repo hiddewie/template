@@ -95,7 +95,7 @@ Dictionary: {% {} %}, {% {a:1} %} and {% {item: expression, " space ": "spacy", 
 
 ### Flow control
 
-Test expressions with `if`, `elif` and `else`:
+Test expressions with `if` / `unless`, `elif` and `else`:
 ```
 {% if some_expression %}
   Rendered when the expression is truthy
@@ -103,6 +103,10 @@ Test expressions with `if`, `elif` and `else`:
   Rendered when the above is not true and the expression is truthy
 {% else %}
   Rendered when the above are not truthy
+{% end %}
+
+{% unless expression %}
+  Rendered when the expression is falsy
 {% end %}
 ```
 

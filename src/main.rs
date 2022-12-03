@@ -457,11 +457,17 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, Templat
                         valid = false;
 
                         let mut if_inner_expression = if_inner.into_inner();
+                        let if_keyword = if_inner_expression.next().unwrap();
+                        let invert = match if_keyword.as_rule() {
+                            Rule::keyword_if => false,
+                            Rule::keyword_unless => true,
+                            _ => unreachable!(),
+                        };
                         let if_expression = if_inner_expression.next().unwrap();
                         let if_result = parse_expression(&data, &mut if_expression.into_inner())
                             .map(|value| to_boolean(&value))
                             .unwrap_or(false);
-                        if if_result {
+                        if if_result ^ invert {
                             done = true;
                             valid = true
                         }
