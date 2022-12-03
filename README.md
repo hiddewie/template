@@ -39,8 +39,9 @@ This software:
 
 ## Configuration
 
-- [JSON](https://www.json.org)
-- [HCL](https://github.com/hashicorp/hcl)
+- [JSON](https://www.json.org), extension `.json`, default parsing format
+- [HCL](https://github.com/hashicorp/hcl), extension `.hcl`
+- [YAML](https://yaml.org/spec/), extension `.yml` and `.yaml`
 
 ## Templating
 

@@ -78,6 +78,24 @@ ERROR: Could not parse HCL configuration:
 }
 
 #[test]
+fn invalid_configuration_yaml() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/empty.template")
+        .arg("tests/configuration/invalid.yaml")
+        .assert();
+
+    assert
+        .failure()
+        .code(3)
+        .stdout("")
+        .stderr(r#"Using template file 'tests/template/empty.template'
+Using configuration file 'tests/configuration/invalid.yaml'
+ERROR: Could not parse YAML configuration: found unexpected end of stream at line 3 column 1, while scanning a quoted scalar at line 2 column 2
+"#);
+}
+
+#[test]
 fn invalid_template() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
@@ -146,6 +164,38 @@ fn hello_world_hcl() {
         .stdout("Hello world!")
         .stderr(r#"Using template file 'tests/template/hello_world.template'
 Using configuration file 'tests/configuration/hello_world.hcl'
+"#);
+}
+
+#[test]
+fn hello_world_yaml() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/hello_world.template")
+        .arg("tests/configuration/hello_world.yaml")
+        .assert();
+
+    assert
+        .success()
+        .stdout("Hello world!")
+        .stderr(r#"Using template file 'tests/template/hello_world.template'
+Using configuration file 'tests/configuration/hello_world.yaml'
+"#);
+}
+
+#[test]
+fn hello_world_yml() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("tests/template/hello_world.template")
+        .arg("tests/configuration/hello_world.yml")
+        .assert();
+
+    assert
+        .success()
+        .stdout("Hello world!")
+        .stderr(r#"Using template file 'tests/template/hello_world.template'
+Using configuration file 'tests/configuration/hello_world.yml'
 "#);
 }
 

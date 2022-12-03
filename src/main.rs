@@ -624,6 +624,12 @@ fn main() {
                 eprintln!("{}", parse_error);
                 exit(ERR_PARSING_CONFIGURATION)
             })
+    } else if utf8_config_path.ends_with(".yml") || utf8_config_path.ends_with(".yaml") {
+        serde_yaml::from_str(configuration_content.as_str())
+            .unwrap_or_else(|parse_error| {
+                eprintln!("ERROR: Could not parse YAML configuration: {}", parse_error);
+                exit(ERR_PARSING_CONFIGURATION)
+            })
     } else {
         serde_json::from_str(configuration_content.as_str())
             .unwrap_or_else(|parse_error| {
