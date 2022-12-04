@@ -23,11 +23,15 @@ pub struct TemplateParser;
 
 /// Search for a pattern in a file and display the lines that contain it.
 #[derive(ClapParser)]
+#[command(author, version, about, long_about = None)]
 struct Cli {
-    /// The path to the file to read
-    path: std::path::PathBuf,
-    /// Config
-    config: std::path::PathBuf,
+    /// Absolute or relative path to the template file
+    #[arg(short, long)]
+    template: std::path::PathBuf,
+
+    /// Absolute or relative path to the configuration file
+    #[arg(short, long)]
+    configuration: std::path::PathBuf,
 }
 
 fn type_of<T>(_: &T) -> String {
@@ -595,34 +599,34 @@ fn evaluate_file(data: &Value, file: Pair<Rule>) -> Result<String, TemplateRende
 }
 
 static ERR_TEMPLATE_FILE: i32 = 1;
-static ERR_CONFIGURATION_FILE: i32 = 2;
-static ERR_PARSING_CONFIGURATION: i32 = 3;
-static ERR_PARSING_TEMPLATE: i32 = 4;
-static ERR_RENDERING_TEMPLATE: i32 = 5;
+static ERR_CONFIGURATION_FILE: i32 = 3;
+static ERR_PARSING_CONFIGURATION: i32 = 4;
+static ERR_PARSING_TEMPLATE: i32 = 5;
+static ERR_RENDERING_TEMPLATE: i32 = 6;
 
 fn main() {
     let args: Cli = Cli::parse();
-    let path = args.path;
-    let utf8_path = path.to_str().unwrap_or("<path not representable in UTF-8>");
-    eprintln!("Using template file '{}'", utf8_path);
+    let template_path = args.template;
+    let utf8_template_path = template_path.to_str().unwrap_or("<path not representable in UTF-8>");
+    eprintln!("Using template file '{}'", utf8_template_path);
 
-    let template_content = std::fs::read_to_string(path.clone())
+    let template_content = std::fs::read_to_string(template_path.clone())
         .unwrap_or_else(|error| {
-            eprintln!("ERROR: Could not read template file '{}': {}", utf8_path, error);
+            eprintln!("ERROR: Could not read template file '{}': {}", utf8_template_path, error);
             exit(ERR_TEMPLATE_FILE);
         });
 
-    let config = args.config;
-    let utf8_config_path = config.to_str().unwrap_or("<path not representable in UTF-8>");
-    eprintln!("Using configuration file '{}'", utf8_config_path);
+    let configuration_path = args.configuration;
+    let utf8_configuration_path = configuration_path.to_str().unwrap_or("<path not representable in UTF-8>");
+    eprintln!("Using configuration file '{}'", utf8_configuration_path);
 
-    let configuration_content = std::fs::read_to_string(config.clone())
+    let configuration_content = std::fs::read_to_string(configuration_path.clone())
         .unwrap_or_else(|error| {
-            eprintln!("ERROR: Could not read configuration file '{}': {}", utf8_config_path, error);
+            eprintln!("ERROR: Could not read configuration file '{}': {}", utf8_configuration_path, error);
             exit(ERR_CONFIGURATION_FILE);
         });
 
-    let configuration: Value = if utf8_config_path.ends_with(".hcl") {
+    let configuration: Value = if utf8_configuration_path.ends_with(".hcl") {
         hcl::from_str(configuration_content.as_str())
             .unwrap_or_else(|parse_error| {
                 eprintln!("ERROR: Could not parse HCL configuration:");
@@ -630,7 +634,7 @@ fn main() {
                 eprintln!("{}", parse_error);
                 exit(ERR_PARSING_CONFIGURATION)
             })
-    } else if utf8_config_path.ends_with(".yml") || utf8_config_path.ends_with(".yaml") {
+    } else if utf8_configuration_path.ends_with(".yml") || utf8_configuration_path.ends_with(".yaml") {
         serde_yaml::from_str(configuration_content.as_str())
             .unwrap_or_else(|parse_error| {
                 eprintln!("ERROR: Could not parse YAML configuration: {}", parse_error);

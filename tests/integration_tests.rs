@@ -1,10 +1,109 @@
 use assert_cmd::Command;
 
 #[test]
+fn no_arguments() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd.assert();
+
+    assert
+        .failure()
+        .code(2)
+        .stdout("")
+        .stderr(r#"error: The following required arguments were not provided:
+  --template <TEMPLATE>
+  --configuration <CONFIGURATION>
+
+Usage: template --template <TEMPLATE> --configuration <CONFIGURATION>
+
+For more information try '--help'
+"#);
+}
+
+#[test]
+fn missing_required_template_argument() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("--configuration")
+        .arg("tests/configuration/empty.json")
+        .assert();
+
+    assert
+        .failure()
+        .code(2)
+        .stdout("")
+        .stderr(r#"error: The following required arguments were not provided:
+  --template <TEMPLATE>
+
+Usage: template --template <TEMPLATE> --configuration <CONFIGURATION>
+
+For more information try '--help'
+"#);
+}
+
+#[test]
+fn missing_required_configuration_argument() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("--template")
+        .arg("tests/template/empty.template")
+        .assert();
+
+    assert
+        .failure()
+        .code(2)
+        .stdout("")
+        .stderr(r#"error: The following required arguments were not provided:
+  --configuration <CONFIGURATION>
+
+Usage: template --template <TEMPLATE> --configuration <CONFIGURATION>
+
+For more information try '--help'
+"#);
+}
+
+#[test]
+fn version() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("--version")
+        .assert();
+
+    assert
+        .success()
+        .stdout(r#"template-cli 0.1.0
+"#)
+        .stderr("");
+}
+
+#[test]
+fn help() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("--help")
+        .assert();
+
+    assert
+        .success()
+        .stdout(r#"CLI for templating based on JSON, YAML or HCL configuration
+
+Usage: template --template <TEMPLATE> --configuration <CONFIGURATION>
+
+Options:
+  -t, --template <TEMPLATE>            Absolute or relative path to the template file
+  -c, --configuration <CONFIGURATION>  Absolute or relative path to the configuration file
+  -h, --help                           Print help information
+  -V, --version                        Print version information
+"#)
+        .stderr("");
+}
+
+#[test]
 fn template_does_not_exist() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/does_not_exist.template")
+        .arg("--configuration")
         .arg("tests/configuration/empty.json")
         .assert();
 
@@ -21,13 +120,15 @@ ERROR: Could not read template file 'tests/template/does_not_exist.template': No
 fn configuration_does_not_exist() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/empty.template")
+        .arg("--configuration")
         .arg("tests/configuration/does_not_exist.json")
         .assert();
 
     assert
         .failure()
-        .code(2)
+        .code(3)
         .stdout("")
         .stderr(r#"Using template file 'tests/template/empty.template'
 Using configuration file 'tests/configuration/does_not_exist.json'
@@ -39,13 +140,15 @@ ERROR: Could not read configuration file 'tests/configuration/does_not_exist.jso
 fn invalid_configuration_json() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/empty.template")
+        .arg("--configuration")
         .arg("tests/configuration/invalid.json")
         .assert();
 
     assert
         .failure()
-        .code(3)
+        .code(4)
         .stdout("")
         .stderr(r#"Using template file 'tests/template/empty.template'
 Using configuration file 'tests/configuration/invalid.json'
@@ -57,13 +160,15 @@ ERROR: Could not parse JSON configuration (syntax error): key must be a string a
 fn invalid_configuration_hcl() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/empty.template")
+        .arg("--configuration")
         .arg("tests/configuration/invalid.hcl")
         .assert();
 
     assert
         .failure()
-        .code(3)
+        .code(4)
         .stdout("")
         .stderr(r#"Using template file 'tests/template/empty.template'
 Using configuration file 'tests/configuration/invalid.hcl'
@@ -81,13 +186,15 @@ ERROR: Could not parse HCL configuration:
 fn invalid_configuration_yaml() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/empty.template")
+        .arg("--configuration")
         .arg("tests/configuration/invalid.yaml")
         .assert();
 
     assert
         .failure()
-        .code(3)
+        .code(4)
         .stdout("")
         .stderr(r#"Using template file 'tests/template/empty.template'
 Using configuration file 'tests/configuration/invalid.yaml'
@@ -99,13 +206,15 @@ ERROR: Could not parse YAML configuration: found unexpected end of stream at lin
 fn invalid_template() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/invalid.template")
+        .arg("--configuration")
         .arg("tests/configuration/empty.json")
         .assert();
 
     assert
         .failure()
-        .code(4)
+        .code(5)
         .stdout("")
         .stderr(r#"Using template file 'tests/template/invalid.template'
 Using configuration file 'tests/configuration/empty.json'
@@ -123,7 +232,9 @@ ERROR: Could not parse template
 fn empty_template() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/empty.template")
+        .arg("--configuration")
         .arg("tests/configuration/empty.json")
         .assert();
 
@@ -139,7 +250,9 @@ Using configuration file 'tests/configuration/empty.json'
 fn hello_world_json() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/hello_world.template")
+        .arg("--configuration")
         .arg("tests/configuration/hello_world.json")
         .assert();
 
@@ -155,7 +268,9 @@ Using configuration file 'tests/configuration/hello_world.json'
 fn hello_world_hcl() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/hello_world.template")
+        .arg("--configuration")
         .arg("tests/configuration/hello_world.hcl")
         .assert();
 
@@ -171,7 +286,9 @@ Using configuration file 'tests/configuration/hello_world.hcl'
 fn hello_world_yaml() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/hello_world.template")
+        .arg("--configuration")
         .arg("tests/configuration/hello_world.yaml")
         .assert();
 
@@ -187,7 +304,9 @@ Using configuration file 'tests/configuration/hello_world.yaml'
 fn hello_world_yml() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/hello_world.template")
+        .arg("--configuration")
         .arg("tests/configuration/hello_world.yml")
         .assert();
 
@@ -203,7 +322,9 @@ Using configuration file 'tests/configuration/hello_world.yml'
 fn no_variables() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/no_variables.template")
+        .arg("--configuration")
         .arg("tests/configuration/empty.json")
         .assert();
 
@@ -226,7 +347,9 @@ Using configuration file 'tests/configuration/empty.json'
 fn variables() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/variables.template")
+        .arg("--configuration")
         .arg("tests/configuration/variables.json")
         .assert();
 
@@ -251,7 +374,9 @@ Using configuration file 'tests/configuration/variables.json'
 fn missing_configuration_value() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/a.template")
+        .arg("--configuration")
         .arg("tests/configuration/empty.json")
         .assert();
 
@@ -269,7 +394,9 @@ Using configuration file 'tests/configuration/empty.json'
 fn if_else() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/if_else.template")
+        .arg("--configuration")
         .arg("tests/configuration/if_else.json")
         .assert();
 
@@ -313,7 +440,9 @@ Using configuration file 'tests/configuration/if_else.json'
 fn iteration() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/iteration.template")
+        .arg("--configuration")
         .arg("tests/configuration/iteration.json")
         .assert();
 
@@ -348,7 +477,9 @@ Using configuration file 'tests/configuration/iteration.json'
 fn comments() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/comments.template")
+        .arg("--configuration")
         .arg("tests/configuration/empty.json")
         .assert();
 
@@ -370,13 +501,15 @@ Using configuration file 'tests/configuration/empty.json'
 fn function_error() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/function_error.template")
+        .arg("--configuration")
         .arg("tests/configuration/function_error.json")
         .assert();
 
     assert
         .failure()
-        .code(5)
+        .code(6)
         .stdout("")
         .stderr(r#"Using template file 'tests/template/function_error.template'
 Using configuration file 'tests/configuration/function_error.json'
@@ -388,7 +521,9 @@ ERROR: Could not render template: &serde_json::value::Value
 fn string_functions() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/string_functions.template")
+        .arg("--configuration")
         .arg("tests/configuration/string_functions.json")
         .env("ENV_TEST", "env_test")
         .assert();
@@ -432,7 +567,9 @@ Using configuration file 'tests/configuration/string_functions.json'
 fn array_functions() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/array_functions.template")
+        .arg("--configuration")
         .arg("tests/configuration/empty.json")
         .assert();
 
@@ -461,7 +598,9 @@ Using configuration file 'tests/configuration/empty.json'
 fn dictionary_functions() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/dictionary_functions.template")
+        .arg("--configuration")
         .arg("tests/configuration/empty.json")
         .assert();
 
@@ -479,7 +618,9 @@ Using configuration file 'tests/configuration/empty.json'
 fn literals() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/literals.template")
+        .arg("--configuration")
         .arg("tests/configuration/literals.json")
         .assert();
 
@@ -525,7 +666,9 @@ Using configuration file 'tests/configuration/literals.json'
 fn default() {
     let mut cmd = Command::cargo_bin("template").unwrap();
     let assert = cmd
+        .arg("--template")
         .arg("tests/template/default.template")
+        .arg("--configuration")
         .arg("tests/configuration/empty.json")
         .assert();
 
