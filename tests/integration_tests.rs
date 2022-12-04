@@ -472,6 +472,8 @@ nonempty
 else
 
 else
+
+    indented content
 "#)
         .stderr(r#"Using template file 'tests/template/if_else.template'
 Using configuration file 'tests/configuration/if_else.json'

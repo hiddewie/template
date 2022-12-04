@@ -460,12 +460,13 @@ fn to_boolean(value: &Value) -> bool {
     }
 }
 
-fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, TemplateRenderError> {
+fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<(String, bool), TemplateRenderError> {
     let mut result = String::new();
 
     let mut inner_rules = record.into_inner();
     let expression = inner_rules.next().unwrap();
 
+    let mut gobble = false;
     match expression.as_rule() {
         Rule::if_elif_else_template => {
             let mut done = false;
@@ -473,6 +474,7 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, Templat
             for if_inner in expression.into_inner() {
                 match if_inner.as_rule() {
                     Rule::if_template => {
+                        gobble = true;
                         valid = false;
 
                         let mut if_inner_expression = if_inner.into_inner();
@@ -492,6 +494,7 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, Templat
                         }
                     }
                     Rule::elif_template => {
+                        result = result.trim_end_matches(&[' ', '\t']).to_string();
                         valid = false;
 
                         let mut elif_inner_expression = if_inner.into_inner();
@@ -505,9 +508,11 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, Templat
                         }
                     }
                     Rule::else_template => {
+                        result = result.trim_end_matches(&[' ', '\t']).to_string();
                         valid = !done;
                     }
                     Rule::end_template => {
+                        result = result.trim_end_matches(&[' ', '\t']).to_string();
                         valid = false;
                         done = true;
                     }
@@ -516,7 +521,13 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, Templat
                             result.push_str(if_inner.as_str())
                         }
                     }
-                    Rule::template => result.push_str(evaluate_template(&data, if_inner)?.as_str()),
+                    Rule::template => {
+                        let (evaluation, gobble_inner) = evaluate_template(&data, if_inner)?;
+                        if gobble_inner {
+                            result = result.trim_end_matches(&[' ', '\t']).to_string();
+                        }
+                        result.push_str(evaluation.as_str())
+                    },
                     _ => unreachable!(),
                 }
             }
@@ -531,6 +542,7 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, Templat
             for for_inner in expression.into_inner() {
                 match for_inner.as_rule() {
                     Rule::for_template => {
+                        gobble = true;
                         let mut for_inner_expression = for_inner.into_inner();
                         iterable_name = for_inner_expression.next().unwrap().as_str();
                         let for_iterable = parse_expression(&data, &mut for_inner_expression.next().unwrap().into_inner()).unwrap();
@@ -543,12 +555,14 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, Templat
                         iterables_results = iterables.iter().map(|_| Rc::new(RefCell::new(String::new()))).collect();
                     }
                     Rule::else_template => {
+                        result = result.trim_end_matches(&[' ', '\t']).to_string();
                         valid = false;
                         if !done {
                             valid = true
                         }
                     }
                     Rule::end_template => {
+                        result = result.trim_end_matches(&[' ', '\t']).to_string();
                         valid = false;
                         done = true;
                     }
@@ -570,9 +584,13 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, Templat
                                 }
                                 _ => iterable.clone(),
                             };
-                            let template_result = evaluate_template(&context_value, for_inner.clone())?;
+                            let (template_result, gobble_inner) = evaluate_template(&context_value, for_inner.clone())?;
                             iterable_result.replace_with(|current_result|
-                                format!("{}{}", current_result, template_result)
+                                if gobble_inner {
+                                    format!("{}{}", current_result.as_str().trim_end_matches(&[' ', '\t']), template_result)
+                                } else {
+                                    format!("{}{}", current_result, template_result)
+                                }
                             );
                         }
                     }
@@ -595,7 +613,7 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, Templat
         _ => unreachable!(),
     }
 
-    return Ok(result);
+    return Ok((result, gobble));
 }
 
 fn evaluate_file(data: &Value, file: Pair<Rule>) -> Result<String, TemplateRenderError> {
@@ -603,8 +621,16 @@ fn evaluate_file(data: &Value, file: Pair<Rule>) -> Result<String, TemplateRende
 
     for record in file.into_inner() {
         match record.as_rule() {
-            Rule::template => result.push_str(evaluate_template(&data, record)?.as_str()),
-            Rule::character => result.push_str(record.as_str()),
+            Rule::template => {
+                let (evaluation, gobble_inner) = evaluate_template(&data, record)?;
+                if gobble_inner {
+                    result = result.trim_end_matches(&[' ', '\t']).to_string();
+                }
+                result.push_str(evaluation.as_str())
+            },
+            Rule::character => {
+                result.push_str(record.as_str())
+            },
             Rule::EOI => (),
             _ => unreachable!(),
         }

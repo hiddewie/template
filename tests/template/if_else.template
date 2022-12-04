@@ -41,3 +41,7 @@ false
 {% else %}
 else
 {% end %}
+
+    {% if true %}
+    indented content
+    {% end %}
