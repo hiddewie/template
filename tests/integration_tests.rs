@@ -86,11 +86,12 @@ fn help() {
         .success()
         .stdout(r#"CLI for templating based on JSON, YAML or HCL configuration
 
-Usage: template --template <TEMPLATE> --configuration <CONFIGURATION>
+Usage: template [OPTIONS] --template <TEMPLATE> --configuration <CONFIGURATION>
 
 Options:
   -t, --template <TEMPLATE>            Absolute or relative path to the template file
   -c, --configuration <CONFIGURATION>  Absolute or relative path to the configuration file
+  -f, --format <FORMAT>                Specify the format of the configuration input. Useful when the configuration file has a non-standard extension, or when the input is given in the standard input stream [possible values: json, hcl, yaml]
   -h, --help                           Print help information
   -V, --version                        Print version information
 "#)
@@ -315,6 +316,26 @@ fn hello_world_yml() {
         .stdout("Hello world!")
         .stderr(r#"Using template file 'tests/template/hello_world.template'
 Using configuration file 'tests/configuration/hello_world.yml'
+"#);
+}
+
+#[test]
+fn hcl_with_format_and_unknown_extension() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("--template")
+        .arg("tests/template/hello_world.template")
+        .arg("--configuration")
+        .arg("tests/configuration/hello_world.unknown")
+        .arg("--format")
+        .arg("hcl")
+        .assert();
+
+    assert
+        .success()
+        .stdout("Hello world!")
+        .stderr(r#"Using template file 'tests/template/hello_world.template'
+Using configuration file 'tests/configuration/hello_world.unknown'
 "#);
 }
 

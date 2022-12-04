@@ -11,9 +11,24 @@ cargo install template-cli
 
 ## Usage
 
-Run the `template` CLI with
-```shell
-template ./path/to/template.template ./path/to/configuration.json
+template --template ./path/to/template.template --configuration ./path/to/configuration.json
+
+Show the usage information with the `--help` option:
+```
+template --help
+```
+which outputs:
+```text
+CLI for templating based on JSON, YAML or HCL configuration
+
+Usage: template [OPTIONS] --template <TEMPLATE> --configuration <CONFIGURATION>
+
+Options:
+  -t, --template <TEMPLATE>            Absolute or relative path to the template file
+  -c, --configuration <CONFIGURATION>  Absolute or relative path to the configuration file
+  -f, --format <FORMAT>                Specify the format of the configuration input. Useful when the configuration file has a non-standard extension, or when the input is given in the standard input stream [possible values: json, hcl, yaml]
+  -h, --help                           Print help information
+  -V, --version                        Print version information
 ```
 
 The output is rendered to the standard output stream. Log messages are output to the standard error stream.
@@ -43,6 +58,8 @@ This software:
 - [JSON](https://www.json.org), extension `.json`, default parsing format
 - [HCL](https://github.com/hashicorp/hcl), extension `.hcl`
 - [YAML](https://yaml.org/spec/), extension `.yml` and `.yaml`
+
+If the configuration file has a different extension, or when the configuration is given in the standard input stream, you can configure the configuration format with the `--format` option.
 
 ## Templating
 

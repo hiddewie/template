@@ -16,10 +16,18 @@ use pest::Parser;
 use regex::Regex;
 use serde_json::{Map, Value};
 use serde_json::error::Category;
+use crate::ConfigurationFormat::{HCL, YAML};
 
 #[derive(Parser)]
 #[grammar = "template.pest"]
 pub struct TemplateParser;
+
+#[derive(clap::ValueEnum, Clone, Eq, PartialEq)]
+enum ConfigurationFormat {
+    JSON,
+    HCL,
+    YAML,
+}
 
 /// Search for a pattern in a file and display the lines that contain it.
 #[derive(ClapParser)]
@@ -32,6 +40,11 @@ struct Cli {
     /// Absolute or relative path to the configuration file
     #[arg(short, long)]
     configuration: std::path::PathBuf,
+
+    /// Specify the format of the configuration input. Useful when the configuration file has
+    /// a non-standard extension, or when the input is given in the standard input stream.
+    #[arg(short, long, value_enum)]
+    format: Option<ConfigurationFormat>,
 }
 
 fn type_of<T>(_: &T) -> String {
@@ -626,7 +639,8 @@ fn main() {
             exit(ERR_CONFIGURATION_FILE);
         });
 
-    let configuration: Value = if utf8_configuration_path.ends_with(".hcl") {
+    let input_format = args.format;
+    let configuration: Value = if input_format == Some(HCL) || utf8_configuration_path.ends_with(".hcl") {
         hcl::from_str(configuration_content.as_str())
             .unwrap_or_else(|parse_error| {
                 eprintln!("ERROR: Could not parse HCL configuration:");
@@ -634,13 +648,14 @@ fn main() {
                 eprintln!("{}", parse_error);
                 exit(ERR_PARSING_CONFIGURATION)
             })
-    } else if utf8_configuration_path.ends_with(".yml") || utf8_configuration_path.ends_with(".yaml") {
+    } else if input_format == Some(YAML) || utf8_configuration_path.ends_with(".yml") || utf8_configuration_path.ends_with(".yaml") {
         serde_yaml::from_str(configuration_content.as_str())
             .unwrap_or_else(|parse_error| {
                 eprintln!("ERROR: Could not parse YAML configuration: {}", parse_error);
                 exit(ERR_PARSING_CONFIGURATION)
             })
     } else {
+        // Default to JSON
         serde_json::from_str(configuration_content.as_str())
             .unwrap_or_else(|parse_error| {
                 let classification = match parse_error.classify() {
