@@ -6,6 +6,7 @@ extern crate pest_derive;
 use std::cell::RefCell;
 use std::env;
 use std::fmt::{Debug, Display, Formatter};
+use std::io::Read;
 use std::process::exit;
 use std::rc::Rc;
 
@@ -33,11 +34,12 @@ enum ConfigurationFormat {
 #[derive(ClapParser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
-    /// Absolute or relative path to the template file
+    /// Absolute or relative path to the template file.
     #[arg(short, long)]
     template: std::path::PathBuf,
 
-    /// Absolute or relative path to the configuration file
+    /// Absolute or relative path to the configuration file.
+    /// Provide `-` as path to read the configuration input from the standard input stream.
     #[arg(short, long)]
     configuration: std::path::PathBuf,
 
@@ -631,16 +633,32 @@ fn main() {
 
     let configuration_path = args.configuration;
     let utf8_configuration_path = configuration_path.to_str().unwrap_or("<path not representable in UTF-8>");
-    eprintln!("Using configuration file '{}'", utf8_configuration_path);
-
-    let configuration_content = std::fs::read_to_string(configuration_path.clone())
-        .unwrap_or_else(|error| {
-            eprintln!("ERROR: Could not read configuration file '{}': {}", utf8_configuration_path, error);
-            exit(ERR_CONFIGURATION_FILE);
-        });
+    let configuration_content = if utf8_configuration_path == "-" {
+        eprintln!("Reading configuration from standard input stream");
+        let mut input =  Vec::new();
+        let mut handle = std::io::stdin().lock();
+        handle.read_to_end(&mut input)
+            .unwrap_or_else(|error| {
+                eprintln!("ERROR: I/O error while reading configuration input: {}", error);
+                exit(ERR_CONFIGURATION_FILE);
+            });
+        String::from_utf8(input)
+            .unwrap_or_else(|error| {
+                eprintln!("ERROR: Could not parse configuration input as UTF-8: {}", error);
+                exit(ERR_CONFIGURATION_FILE);
+            })
+    } else {
+        eprintln!("Using configuration file '{}'", utf8_configuration_path);
+        std::fs::read_to_string(configuration_path.clone())
+            .unwrap_or_else(|error| {
+                eprintln!("ERROR: Could not read configuration file '{}': {}", utf8_configuration_path, error);
+                exit(ERR_CONFIGURATION_FILE);
+            })
+    };
 
     let input_format = args.format;
     let configuration: Value = if input_format == Some(HCL) || utf8_configuration_path.ends_with(".hcl") {
+        eprintln!("Parsing configuration using HCL format");
         hcl::from_str(configuration_content.as_str())
             .unwrap_or_else(|parse_error| {
                 eprintln!("ERROR: Could not parse HCL configuration:");
@@ -649,6 +667,7 @@ fn main() {
                 exit(ERR_PARSING_CONFIGURATION)
             })
     } else if input_format == Some(YAML) || utf8_configuration_path.ends_with(".yml") || utf8_configuration_path.ends_with(".yaml") {
+        eprintln!("Parsing configuration using YAML format");
         serde_yaml::from_str(configuration_content.as_str())
             .unwrap_or_else(|parse_error| {
                 eprintln!("ERROR: Could not parse YAML configuration: {}", parse_error);
@@ -656,6 +675,7 @@ fn main() {
             })
     } else {
         // Default to JSON
+        eprintln!("Parsing configuration using JSON format");
         serde_json::from_str(configuration_content.as_str())
             .unwrap_or_else(|parse_error| {
                 let classification = match parse_error.classify() {

@@ -25,13 +25,22 @@ Usage: template [OPTIONS] --template <TEMPLATE> --configuration <CONFIGURATION>
 
 Options:
   -t, --template <TEMPLATE>            Absolute or relative path to the template file
-  -c, --configuration <CONFIGURATION>  Absolute or relative path to the configuration file
+  -c, --configuration <CONFIGURATION>  Absolute or relative path to the configuration file. Provide `-` as path to read the configuration input from the standard input stream
   -f, --format <FORMAT>                Specify the format of the configuration input. Useful when the configuration file has a non-standard extension, or when the input is given in the standard input stream [possible values: json, hcl, yaml]
   -h, --help                           Print help information
   -V, --version                        Print version information
 ```
 
 The output is rendered to the standard output stream. Log messages are output to the standard error stream.
+
+This tool combines well with other command-line utilities, following the UNIX philosophy, for example:
+```
+curl -s 'https://dummyjson.com/products' \
+  | jq '{ items: .products }' \
+  | template --configuration - --template products.template \
+  | head -n 5 \
+  > product-list.txt
+```
 
 ### Exit codes
 
@@ -47,7 +56,7 @@ The output is rendered to the standard output stream. Log messages are output to
 ### Security
 
 This software:
-- reads the configuration file
+- reads the configuration file or standard input
 - reads the template file
 - reads the environment, if the `environment` function is used
 - does not write any files

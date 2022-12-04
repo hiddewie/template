@@ -90,7 +90,7 @@ Usage: template [OPTIONS] --template <TEMPLATE> --configuration <CONFIGURATION>
 
 Options:
   -t, --template <TEMPLATE>            Absolute or relative path to the template file
-  -c, --configuration <CONFIGURATION>  Absolute or relative path to the configuration file
+  -c, --configuration <CONFIGURATION>  Absolute or relative path to the configuration file. Provide `-` as path to read the configuration input from the standard input stream
   -f, --format <FORMAT>                Specify the format of the configuration input. Useful when the configuration file has a non-standard extension, or when the input is given in the standard input stream [possible values: json, hcl, yaml]
   -h, --help                           Print help information
   -V, --version                        Print version information
@@ -153,6 +153,7 @@ fn invalid_configuration_json() {
         .stdout("")
         .stderr(r#"Using template file 'tests/template/empty.template'
 Using configuration file 'tests/configuration/invalid.json'
+Parsing configuration using JSON format
 ERROR: Could not parse JSON configuration (syntax error): key must be a string at line 1 column 2
 "#);
 }
@@ -173,6 +174,7 @@ fn invalid_configuration_hcl() {
         .stdout("")
         .stderr(r#"Using template file 'tests/template/empty.template'
 Using configuration file 'tests/configuration/invalid.hcl'
+Parsing configuration using HCL format
 ERROR: Could not parse HCL configuration:
  --> 2:2
   |
@@ -199,6 +201,7 @@ fn invalid_configuration_yaml() {
         .stdout("")
         .stderr(r#"Using template file 'tests/template/empty.template'
 Using configuration file 'tests/configuration/invalid.yaml'
+Parsing configuration using YAML format
 ERROR: Could not parse YAML configuration: found unexpected end of stream at line 3 column 1, while scanning a quoted scalar at line 2 column 2
 "#);
 }
@@ -219,6 +222,7 @@ fn invalid_template() {
         .stdout("")
         .stderr(r#"Using template file 'tests/template/invalid.template'
 Using configuration file 'tests/configuration/empty.json'
+Parsing configuration using JSON format
 ERROR: Could not parse template
  --> 1:3
   |
@@ -244,6 +248,7 @@ fn empty_template() {
         .stdout("")
         .stderr(r#"Using template file 'tests/template/empty.template'
 Using configuration file 'tests/configuration/empty.json'
+Parsing configuration using JSON format
 "#);
 }
 
@@ -262,6 +267,7 @@ fn hello_world_json() {
         .stdout("Hello world!")
         .stderr(r#"Using template file 'tests/template/hello_world.template'
 Using configuration file 'tests/configuration/hello_world.json'
+Parsing configuration using JSON format
 "#);
 }
 
@@ -280,6 +286,7 @@ fn hello_world_hcl() {
         .stdout("Hello world!")
         .stderr(r#"Using template file 'tests/template/hello_world.template'
 Using configuration file 'tests/configuration/hello_world.hcl'
+Parsing configuration using HCL format
 "#);
 }
 
@@ -298,6 +305,7 @@ fn hello_world_yaml() {
         .stdout("Hello world!")
         .stderr(r#"Using template file 'tests/template/hello_world.template'
 Using configuration file 'tests/configuration/hello_world.yaml'
+Parsing configuration using YAML format
 "#);
 }
 
@@ -316,6 +324,29 @@ fn hello_world_yml() {
         .stdout("Hello world!")
         .stderr(r#"Using template file 'tests/template/hello_world.template'
 Using configuration file 'tests/configuration/hello_world.yml'
+Parsing configuration using YAML format
+"#);
+}
+
+#[test]
+fn read_configuration_from_stdin() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("--template")
+        .arg("tests/template/hello_world.template")
+        .arg("--configuration")
+        .arg("-")
+        .arg("--format")
+        .arg("yaml")
+        .pipe_stdin("tests/configuration/hello_world.yml").unwrap()
+        .assert();
+
+    assert
+        .success()
+        .stdout("Hello world!")
+        .stderr(r#"Using template file 'tests/template/hello_world.template'
+Reading configuration from standard input stream
+Parsing configuration using YAML format
 "#);
 }
 
@@ -336,6 +367,7 @@ fn hcl_with_format_and_unknown_extension() {
         .stdout("Hello world!")
         .stderr(r#"Using template file 'tests/template/hello_world.template'
 Using configuration file 'tests/configuration/hello_world.unknown'
+Parsing configuration using HCL format
 "#);
 }
 
@@ -361,6 +393,7 @@ done
 "#)
         .stderr(r#"Using template file 'tests/template/no_variables.template'
 Using configuration file 'tests/configuration/empty.json'
+Parsing configuration using JSON format
 "#);
 }
 
@@ -388,6 +421,7 @@ end
 "#)
         .stderr(r#"Using template file 'tests/template/variables.template'
 Using configuration file 'tests/configuration/variables.json'
+Parsing configuration using JSON format
 "#);
 }
 
@@ -408,6 +442,7 @@ fn missing_configuration_value() {
 "#)
         .stderr(r#"Using template file 'tests/template/a.template'
 Using configuration file 'tests/configuration/empty.json'
+Parsing configuration using JSON format
 "#);
 }
 
@@ -454,6 +489,7 @@ else
 "#)
         .stderr(r#"Using template file 'tests/template/if_else.template'
 Using configuration file 'tests/configuration/if_else.json'
+Parsing configuration using JSON format
 "#);
 }
 
@@ -491,6 +527,7 @@ loop end
 "#)
         .stderr(r#"Using template file 'tests/template/iteration.template'
 Using configuration file 'tests/configuration/iteration.json'
+Parsing configuration using JSON format
 "#);
 }
 
@@ -515,6 +552,7 @@ false
 "#)
         .stderr(r#"Using template file 'tests/template/comments.template'
 Using configuration file 'tests/configuration/empty.json'
+Parsing configuration using JSON format
 "#);
 }
 
@@ -534,6 +572,7 @@ fn function_error() {
         .stdout("")
         .stderr(r#"Using template file 'tests/template/function_error.template'
 Using configuration file 'tests/configuration/function_error.json'
+Parsing configuration using JSON format
 ERROR: Could not render template: &serde_json::value::Value
 "#);
 }
@@ -581,6 +620,7 @@ drop: lo world
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'
+Parsing configuration using JSON format
 "#);
 }
 
@@ -612,6 +652,7 @@ last:
 "#)
         .stderr(r#"Using template file 'tests/template/array_functions.template'
 Using configuration file 'tests/configuration/empty.json'
+Parsing configuration using JSON format
 "#);
 }
 
@@ -632,6 +673,7 @@ length: 3
 "#)
         .stderr(r#"Using template file 'tests/template/dictionary_functions.template'
 Using configuration file 'tests/configuration/empty.json'
+Parsing configuration using JSON format
 "#);
 }
 
@@ -680,6 +722,7 @@ dictionary: {" spaceee ":space!,a:b,c:1,d:,e:0.1,integer:1,string:string}
 "#)
         .stderr(r#"Using template file 'tests/template/literals.template'
 Using configuration file 'tests/configuration/literals.json'
+Parsing configuration using JSON format
 "#);
 }
 
@@ -714,5 +757,6 @@ default
 "#)
         .stderr(r#"Using template file 'tests/template/default.template'
 Using configuration file 'tests/configuration/empty.json'
+Parsing configuration using JSON format
 "#);
 }
