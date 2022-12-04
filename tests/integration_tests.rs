@@ -458,32 +458,18 @@ fn if_else() {
 
     assert
         .success()
-        .stdout(r#"
-else
-
-
+        .stdout(r#"else
 
 false
 
-
-
 else
-
-
 
 true
 
 
-
-
-
 nonempty
 
-
-
 else
-
-
 
 else
 "#)
@@ -505,23 +491,18 @@ fn iteration() {
 
     assert
         .success()
-        .stdout(r#"
-loop start
+        .stdout(r#"loop start
 outer
 value 1
 nested value 1
 
 loop end
-
 loop start
 outer
 value 2
 nested value 2
 
 loop end
-
-
-
 
 
 "#)
@@ -544,11 +525,7 @@ fn comments() {
     assert
         .success()
         .stdout(r#"
-
-
 false
-
-
 "#)
         .stderr(r#"Using template file 'tests/template/comments.template'
 Using configuration file 'tests/configuration/empty.json'
