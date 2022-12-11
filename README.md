@@ -11,10 +11,12 @@ cargo install template-cli
 
 ## Usage
 
+```shell
 template --template ./path/to/template.template --configuration ./path/to/configuration.json
+```
 
 Show the usage information with the `--help` option:
-```
+```shell
 template --help
 ```
 which outputs:
@@ -34,7 +36,7 @@ Options:
 The output is rendered to the standard output stream. Log messages are output to the standard error stream.
 
 This tool combines well with other command-line utilities, following the UNIX philosophy, for example:
-```
+```shell
 curl -s 'https://dummyjson.com/products' \
   | jq '{ items: .products }' \
   | template --configuration - --template products.template \
