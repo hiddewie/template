@@ -49,7 +49,9 @@ function = {
     "unique" |
     "keys" |
     "values" |
-    "invert"
+    "invert" |
+    "toJson" |
+    "fromJson"
 }
 boolean = { "true" | "false" }
 floating_point_number = { "-"? ~ ((ASCII_DIGIT* ~ "." ~ ASCII_DIGIT+) | (ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT*)) ~ (("e" | "E") ~ "-"? ~ ASCII_DIGIT+)? }

@@ -60,6 +60,7 @@ enum TemplateRenderError {
     LiteralParseError(String),
     RequiredArgumentMissing(String),
     InvalidRegexError(String),
+    JsonParseError(String),
 }
 
 impl Display for TemplateRenderError {
@@ -69,6 +70,7 @@ impl Display for TemplateRenderError {
             TemplateRenderError::LiteralParseError(string) => f.write_str(format!("Could not parse literal '{}'", string.as_str()).as_str())?,
             TemplateRenderError::RequiredArgumentMissing(string) => f.write_str(format!("Required argument is missing for function {}", string.as_str()).as_str())?,
             TemplateRenderError::InvalidRegexError(regex) => f.write_str(format!("Invalid regular expression given: '{}'", regex.as_str()).as_str())?,
+            TemplateRenderError::JsonParseError(json) => f.write_str(format!("Could not parse JSON: '{}'", json.as_str()).as_str())?,
         }
         return Ok(());
     }
@@ -399,6 +401,17 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
                     let inverted = object.clone().into_iter().map(|(key, value)| (value.as_str().unwrap().to_string(), Value::String(key))).collect();
                     Ok(Value::Object(inverted))
                 }
+            } else {
+                Err(TemplateRenderError::TypeError(type_of(&value)))
+            }
+        }
+        "toJson" => {
+            Ok(Value::String(format!("{value}")))
+        }
+        "fromJson" => {
+            if let Value::String(string) = value {
+                serde_json::from_str(string.as_str())
+                    .map_err(|error| TemplateRenderError::JsonParseError(error.to_string()))
             } else {
                 Err(TemplateRenderError::TypeError(type_of(&value)))
             }
@@ -800,6 +813,7 @@ fn main() {
                 TemplateRenderError::LiteralParseError(value) => eprintln!("ERROR: Could not render template: Parsing error: {}", value),
                 TemplateRenderError::RequiredArgumentMissing(value) => eprintln!("ERROR: Could not render template: Required argument is missing: {}", value),
                 TemplateRenderError::InvalidRegexError(value) => eprintln!("ERROR: Could not render template: Invalid regular expression: {}", value),
+                TemplateRenderError::JsonParseError(value) => eprintln!("ERROR: Could not render template: Invalid JSON: {}", value),
             }
             exit(ERR_RENDERING_TEMPLATE)
         });

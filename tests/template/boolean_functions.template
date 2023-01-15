@@ -1,2 +1,3 @@
 empty: {% false | empty %}
 empty: {% true | empty %}
+toJson: {% true | toJson %}

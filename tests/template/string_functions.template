@@ -28,3 +28,9 @@ drop: {% "hello world" | drop(3) %}
 empty: {% "hello" | empty %}
 empty: {% "" | empty %}
 empty: {% "  " | empty %}
+toJson: {% "  " | toJson %}
+toJson: {% " xxx " | toJson %}
+fromJson: {% "{}" | fromJson %}
+fromJson: {% "[1,2,3]" | fromJson %}
+fromJson: {% "1" | fromJson %}
+fromJson:{% "null" | fromJson %}

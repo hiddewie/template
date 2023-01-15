@@ -5,3 +5,5 @@ empty: {% -0.0 | empty %}
 empty: {% -1.0 | empty %}
 empty: {% 1.0 | empty %}
 empty: {% 1 | empty %}
+toJson: {% 1 | toJson %}
+toJson: {% -0.0 | toJson %}

@@ -599,6 +599,12 @@ drop: lo world
 empty: false
 empty: true
 empty: true
+toJson: "  "
+toJson: " xxx "
+fromJson: {}
+fromJson: [1,2,3]
+fromJson: 1
+fromJson:
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'
@@ -625,6 +631,8 @@ empty: true
 empty: false
 empty: false
 empty: false
+toJson: 1
+toJson: -0.0
 "#)
         .stderr(r#"Using template file 'tests/template/number_functions.template'
 Using configuration file 'tests/configuration/empty.json'
@@ -646,6 +654,7 @@ fn boolean_functions() {
         .success()
         .stdout(r#"empty: true
 empty: false
+toJson: true
 "#)
         .stderr(r#"Using template file 'tests/template/boolean_functions.template'
 Using configuration file 'tests/configuration/empty.json'
@@ -716,6 +725,8 @@ keys: []
 values: [1,2,3]
 values: []
 invert: {d:b}
+toJson: {"a":1,"b":2,"c":3}
+toJson: {}
 "#)
         .stderr(r#"Using template file 'tests/template/dictionary_functions.template'
 Using configuration file 'tests/configuration/empty.json'

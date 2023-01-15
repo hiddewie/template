@@ -167,7 +167,8 @@ Some functions take one or more arguments, which can be passed by using parenthe
 
 - `default(value)`: default value if the argument is falsy.
 - `toString`: transform the value to a string.
-- `empty`: Whether the value is not "truthy", i.e. `null`, `0`, `0.0`, `-0.0`, `""`, `"  "`, `[]` or `{}`.
+- `empty`: whether the value is not "truthy", i.e. `null`, `0`, `0.0`, `-0.0`, `""`, `"  "`, `[]` or `{}`.
+- `toJson`: format a value to JSON.
 
 #### String functions
 
@@ -191,6 +192,7 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `substring(from)`, `substring(from, to)`: creates a substring from the string. `from` is inclusive, `to` is exclusive.
 - `take(n)`: takes the first `n` characters from the string.
 - `drop(n)`: drops the first `n` characters from the string.
+- `fromJson`: Parse a value from JSON.
 
 #### Array functions
 
