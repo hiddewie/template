@@ -1,0 +1,41 @@
+on:
+  workflow_dispatch: ~
+
+name: Release
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: true
+      matrix:
+        target:
+          - aarch64-unknown-linux-gnu
+#          - i686-pc-windows-gnu
+#          - i686-pc-windows-msvc
+#          - i686-unknown-linux-gnu
+          - x86_64-apple-darwin
+#          - x86_64-pc-windows-gnu
+          - x86_64-pc-windows-msvc
+          - x86_64-unknown-linux-gnu
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          default: true
+          target: ${{ matrix.target }}
+
+      - name: Build
+        run: cargo build --release --all-features
