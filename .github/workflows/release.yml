@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Create release
         run: gh release create "v${{ github.event.inputs.version }}" --draft --generate-notes --title "Version ${{ github.event.inputs.version }}" --latest
         env:
@@ -81,6 +84,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Publish release
         run: gh release edit "v${{ github.event.inputs.version }}" --draft=false
         env:
