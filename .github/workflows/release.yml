@@ -21,6 +21,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Write version
+        run: sed -i -E 's/^version = .*/version = "${{ github.event.inputs.version }}"/g' Cargo.toml
+
+      - name: Commit new version
+        run: |
+          git config --global user.name '${{ github.actor }}'
+          git config --global user.email '${{ github.actor }}@users.noreply.github.com'
+          git add Cargo.toml
+          git commit --message "Version ${{ github.event.inputs.version }}"
+          git push
+
       - name: Create release
         run: gh release create "v${{ github.event.inputs.version }}" --draft --generate-notes --title "Version ${{ github.event.inputs.version }}" --latest
         env:
@@ -58,9 +69,6 @@ jobs:
           override: true
           default: true
           target: ${{ matrix.target }}
-
-      - name: Write version
-        run: sed -i -E 's/^version = .*/version = "${{ github.event.inputs.version }}"/g' Cargo.toml
 
       - name: Build
         run: cargo build --release --all-features --target ${{ matrix.target }}
