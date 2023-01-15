@@ -9,6 +9,8 @@ Install with
 cargo install template-cli
 ```
 
+Alternatively, you can download a pre-compiled binaries for multiple architectures and operating systems from the [Latest Release page](https://github.com/hiddewie/template/releases/latest).
+
 ## Usage
 
 ```shell
@@ -213,7 +215,7 @@ cargo test
 
 ## Release
 
-Go to the (Release workflow)[https://github.com/hiddewie/template/actions/workflows/release.yml].
+Go to the [Release workflow](https://github.com/hiddewie/template/actions/workflows/release.yml).
 
 Click the *Run workflow* button, and give the following inputs:
 - *Branch*: `master`
