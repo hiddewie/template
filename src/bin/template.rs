@@ -18,6 +18,7 @@ use regex::Regex;
 use serde_json::{Map, Value};
 use serde_json::error::Category;
 use crate::ConfigurationFormat::{HCL, YAML};
+use itertools::Itertools;
 
 #[derive(Parser)]
 #[grammar = "template.pest"]
@@ -339,7 +340,7 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
             if let Value::Array(array) = value {
                 Ok(Value::Bool(array.contains(needle)))
             } else {
-                Err(TemplateRenderError::TypeError(type_of(&needle)))
+                Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
         "containsKey" => {
@@ -364,6 +365,16 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
         }
         "empty" => {
             Ok(Value::Bool(!to_boolean(value)))
+        }
+        "unique" => {
+            if let Value::Array(array) = value {
+                let unique = array.clone().into_iter()
+                    .unique_by(|item| format!("{item}"))
+                    .collect::<Vec<_>>();
+                Ok(Value::Array(unique))
+            } else {
+                Err(TemplateRenderError::TypeError(type_of(&value)))
+            }
         }
         _ => unreachable!()
     };

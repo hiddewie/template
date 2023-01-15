@@ -201,6 +201,7 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `first`: the first item from the array, if it exists.
 - `last`: the last item from the array, if it exists.
 - `contains(value)`: whether the array contains the value.
+- `unique`: remove all duplicates from the array.
 
 #### Dictionary functions
 

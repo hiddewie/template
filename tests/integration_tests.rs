@@ -682,6 +682,8 @@ contains: true
 contains: false
 empty: false
 empty: true
+unique: [1,2,3]
+empty: [1,2,{},[3],,-0.0,0.0]
 "#)
         .stderr(r#"Using template file 'tests/template/array_functions.template'
 Using configuration file 'tests/configuration/empty.json'
