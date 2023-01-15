@@ -1,4 +1,4 @@
-# Template ![crates.io](https://img.shields.io/crates/v/template-cli.svg)
+# Template ![crates.io](https://img.shields.io/crates/v/template-cli.svg) ![Github status](https://github.com/hiddewie/template/actions/workflows/ci.yml/badge.svg)
 
 CLI for templating based on JSON, YAML or HCL configuration.
 
