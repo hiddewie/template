@@ -22,13 +22,15 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Write version
-        run: sed -i -E 's/^version = .*/version = "${{ github.event.inputs.version }}"/g' Cargo.toml
+        run: |
+          sed -i -E 's/^version = .*/version = "${{ github.event.inputs.version }}"/g' Cargo.toml
+          sed -i -E "$(( 1 + $(grep --line-number 'template-cli' Cargo.lock | cut -f1 -d:) ))"'s/^version = .*/version = "${{ github.event.inputs.version }}"/g' Cargo.lock
 
       - name: Commit new version
         run: |
           git config --global user.name '${{ github.actor }}'
           git config --global user.email '${{ github.actor }}@users.noreply.github.com'
-          git add Cargo.toml
+          git add Cargo.toml Cargo.lock
           git commit --message "Version ${{ github.event.inputs.version }}"
           git push
 
