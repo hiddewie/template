@@ -92,7 +92,7 @@ jobs:
         run: cargo build --release --all-features --target ${{ matrix.target }}
 
       - name: Rename asset
-        run: mv target/${{ matrix.target }}/release/template "target/template-v${{ github.event.inputs.version }}-${{ matrix.target }}"
+        run: mv "target/${{ matrix.target }}/release/template${{ matrix.host == 'windows-latest' && '.exe' || '' }}" "target/template-v${{ github.event.inputs.version }}-${{ matrix.target }}"
 
       - name: Publish asset
         run: gh release upload "v${{ github.event.inputs.version }}" "target/template-v${{ github.event.inputs.version }}-${{ matrix.target }}"
