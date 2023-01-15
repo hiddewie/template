@@ -62,6 +62,10 @@ jobs:
 
     continue-on-error: true
 
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -87,11 +91,8 @@ jobs:
       - name: Build
         run: cargo build --release --all-features --target ${{ matrix.target }}
 
-      - name: Rename asset
-        run: |
-          git diff
-          ls -la target/release
-          mv target/release/template "target/release/template-v${{ github.event.inputs.version }}-${{ matrix.target }}"
+      - name: Rename asset (Windows)
+        run: mv target/release/template "target/release/template-v${{ github.event.inputs.version }}-${{ matrix.target }}"
 
       - name: Publish asset
         run: gh release upload "v${{ github.event.inputs.version }}" "target/release/template-v${{ github.event.inputs.version }}-${{ matrix.target }}"
