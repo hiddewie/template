@@ -74,7 +74,7 @@ jobs:
         run: cargo build --release --all-features --target ${{ matrix.target }}
 
       - name: Publish asset
-        run: gh release edit "v${{ github.event.inputs.version }}" ${{ github.event.inputs.version }}
+        run: gh release upload "v${{ github.event.inputs.version }}" target/release/template
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
