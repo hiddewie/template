@@ -711,6 +711,10 @@ containsValue: true
 containsValue: false
 empty: false
 empty: true
+keys: [a,b,c]
+keys: []
+values: [1,2,3]
+values: []
 "#)
         .stderr(r#"Using template file 'tests/template/dictionary_functions.template'
 Using configuration file 'tests/configuration/empty.json'

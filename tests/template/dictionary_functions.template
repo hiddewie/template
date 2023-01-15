@@ -6,3 +6,7 @@ containsValue: {% {a:1, b:2, c:3} | containsValue(1) %}
 containsValue: {% {} | containsValue("a") %}
 empty: {% {a:1} | empty %}
 empty: {% {} | empty %}
+keys: {% {a:1, b:2, c:3} | keys %}
+keys: {% {} | keys %}
+values: {% {a:1, b:2, c:3} | values %}
+values: {% {} | values %}

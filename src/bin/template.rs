@@ -376,6 +376,21 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
                 Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
+        "keys" => {
+            if let Value::Object(object) = value {
+                let keys = object.keys().into_iter().map(|key| Value::String(key.clone())).collect::<Vec<_>>();
+                Ok(Value::Array(keys))
+            } else {
+                Err(TemplateRenderError::TypeError(type_of(&value)))
+            }
+        }
+        "values" => {
+            if let Value::Object(object) = value {
+                Ok(Value::Array(object.values().cloned().into_iter().collect::<Vec<_>>()))
+            } else {
+                Err(TemplateRenderError::TypeError(type_of(&value)))
+            }
+        }
         _ => unreachable!()
     };
 }

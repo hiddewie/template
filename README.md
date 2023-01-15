@@ -208,6 +208,8 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `length`: size of the dictionary
 - `containsKey(key)`: whether the array contains the key.
 - `containsValue(value)`: whether the array contains the value.
+- `keys`: the keys of the dictionary.
+- `values`: the values of the dictionary.
 
 ## Development
 
