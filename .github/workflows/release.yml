@@ -83,6 +83,8 @@ jobs:
       - name: Build
         run: cargo build --release --all-features --target ${{ matrix.target }}
 
+      - run: ls -la target/release
+
       - name: Publish asset
         run: gh release upload "v${{ github.event.inputs.version }}" target/release/template
         env:
