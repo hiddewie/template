@@ -1,4 +1,4 @@
-# Template
+# Template ![crates.io](https://img.shields.io/crates/v/template-cli.svg)
 
 CLI for templating based on JSON, YAML or HCL configuration.
 
