@@ -92,10 +92,10 @@ jobs:
         run: cargo build --release --all-features --target ${{ matrix.target }}
 
       - name: Rename asset
-        run: mv target/${{ matrix.target }}/release/template "template-v${{ github.event.inputs.version }}-${{ matrix.target }}"
+        run: mv target/${{ matrix.target }}/release/template "target/template-v${{ github.event.inputs.version }}-${{ matrix.target }}"
 
       - name: Publish asset
-        run: gh release upload "v${{ github.event.inputs.version }}" "template-v${{ github.event.inputs.version }}-${{ matrix.target }}"
+        run: gh release upload "v${{ github.event.inputs.version }}" "target/template-v${{ github.event.inputs.version }}-${{ matrix.target }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
