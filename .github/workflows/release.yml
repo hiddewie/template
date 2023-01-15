@@ -25,12 +25,13 @@ jobs:
         run: |
           sed -i -E 's/^version = .*/version = "${{ github.event.inputs.version }}"/g' Cargo.toml
           sed -i -E "$(( 1 + $(grep --line-number 'template-cli' Cargo.lock | cut -f1 -d:) ))"'s/^version = .*/version = "${{ github.event.inputs.version }}"/g' Cargo.lock
+          sed -i -E 's/r#"template-cli .*/r#"template-cli ${{ github.event.inputs.version }}/g' tests/integration_tests.rs
 
       - name: Commit new version
         run: |
           git config --global user.name '${{ github.actor }}'
           git config --global user.email '${{ github.actor }}@users.noreply.github.com'
-          git add Cargo.toml Cargo.lock
+          git add Cargo.toml Cargo.lock tests/integration_tests.rs
           git commit --message "Version ${{ github.event.inputs.version }}"
           git push
 

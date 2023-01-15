@@ -70,7 +70,7 @@ fn version() {
 
     assert
         .success()
-        .stdout(r#"template-cli 0.1.0
+        .stdout(r#"template-cli 0.1.11
 "#)
         .stderr("");
 }
