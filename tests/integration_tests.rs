@@ -608,6 +608,18 @@ fromJson:
 abbreviate: a…
 abbreviate: abdef
 abbreviate: …
+trim: abdef
+trim:
+trim: x
+trim:
+trimLeft: abdef
+trimLeft:
+trimLeft: x
+trimLeft:
+trimRight: abdef
+trimRight:
+trimRight:  x
+trimRight:
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'

@@ -37,3 +37,15 @@ fromJson:{% "null" | fromJson %}
 abbreviate: {% "abdef" | abbreviate(2) %}
 abbreviate: {% "abdef" | abbreviate(10) %}
 abbreviate: {% "abdef" | abbreviate(0) %}
+trim: {% "abdef" | trim %}
+trim:{% "" | trim %}
+trim: {% " x " | trim %}
+trim:{% "   " | trim %}
+trimLeft: {% "abdef" | trimLeft %}
+trimLeft:{% "" | trimLeft %}
+trimLeft: {% " x" | trimLeft %}
+trimLeft:{% "   " | trimLeft %}
+trimRight: {% "abdef" | trimRight %}
+trimRight:{% "" | trimRight %}
+trimRight: {% " x " | trimRight %}
+trimRight:{% "   " | trimRight %}

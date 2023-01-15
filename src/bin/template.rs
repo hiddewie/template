@@ -436,6 +436,27 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
                 Err(TemplateRenderError::TypeError(type_of(&n)))
             }
         }
+        "trimLeft" => {
+            if let Value::String(string) = value {
+                Ok(Value::String(string.trim_start().to_string()))
+            } else {
+                Err(TemplateRenderError::TypeError(type_of(&value)))
+            }
+        }
+        "trimRight" => {
+            if let Value::String(string) = value {
+                Ok(Value::String(string.trim_end().to_string()))
+            } else {
+                Err(TemplateRenderError::TypeError(type_of(&value)))
+            }
+        }
+        "trim" => {
+            if let Value::String(string) = value {
+                Ok(Value::String(string.trim().to_string()))
+            } else {
+                Err(TemplateRenderError::TypeError(type_of(&value)))
+            }
+        }
         _ => unreachable!()
     };
 }

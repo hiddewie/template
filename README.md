@@ -194,6 +194,7 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `drop(n)`: drops the first `n` characters from the string.
 - `fromJson`: parse a value from JSON.
 - `abbreviate`: ensure the value is not longer than `n` characters. If it is longer, the value will be shortened until `n-1` characters, and suffixed with `…`.
+- `trimLeft`, `trimRight`, `trim`: trim the left, right or both sides of the string from whitespace.
 
 #### Array functions
 
