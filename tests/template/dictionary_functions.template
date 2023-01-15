@@ -10,3 +10,4 @@ keys: {% {a:1, b:2, c:3} | keys %}
 keys: {% {} | keys %}
 values: {% {a:1, b:2, c:3} | values %}
 values: {% {} | values %}
+invert: {% {b: "d"} | invert %}

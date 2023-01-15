@@ -391,6 +391,18 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
                 Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
+        "invert" => {
+            if let Value::Object(object) = value {
+                if let Some(item) = object.values().into_iter().find(|value| !value.is_string()) {
+                    Err(TemplateRenderError::TypeError(type_of(&item)))
+                } else {
+                    let inverted = object.clone().into_iter().map(|(key, value)| (value.as_str().unwrap().to_string(), Value::String(key))).collect();
+                    Ok(Value::Object(inverted))
+                }
+            } else {
+                Err(TemplateRenderError::TypeError(type_of(&value)))
+            }
+        }
         _ => unreachable!()
     };
 }

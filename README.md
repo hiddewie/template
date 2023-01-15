@@ -210,6 +210,7 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `containsValue(value)`: whether the array contains the value.
 - `keys`: the keys of the dictionary.
 - `values`: the values of the dictionary.
+- `invert`: the values become the keys and the keys become the values. Values can only be strings. Duplicate values are not preserved.
 
 ## Development
 

@@ -715,6 +715,7 @@ keys: [a,b,c]
 keys: []
 values: [1,2,3]
 values: []
+invert: {d:b}
 "#)
         .stderr(r#"Using template file 'tests/template/dictionary_functions.template'
 Using configuration file 'tests/configuration/empty.json'
