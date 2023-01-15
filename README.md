@@ -188,11 +188,12 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `parseInteger`: parses an integer.
 - `parseDecimal`: parses a decimal number.
 - `parseNumber`: parses an integer or decimal number.
-- `matches(regex)`: checks if a number matches a regular expression.
+- `matches(regex)`: checks if the string matches a regular expression.
 - `substring(from)`, `substring(from, to)`: creates a substring from the string. `from` is inclusive, `to` is exclusive.
 - `take(n)`: takes the first `n` characters from the string.
 - `drop(n)`: drops the first `n` characters from the string.
-- `fromJson`: Parse a value from JSON.
+- `fromJson`: parse a value from JSON.
+- `abbreviate`: ensure the value is not longer than `n` characters. If it is longer, the value will be shortened until `n-1` characters, and suffixed with `…`.
 
 #### Array functions
 

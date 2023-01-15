@@ -34,3 +34,6 @@ fromJson: {% "{}" | fromJson %}
 fromJson: {% "[1,2,3]" | fromJson %}
 fromJson: {% "1" | fromJson %}
 fromJson:{% "null" | fromJson %}
+abbreviate: {% "abdef" | abbreviate(2) %}
+abbreviate: {% "abdef" | abbreviate(10) %}
+abbreviate: {% "abdef" | abbreviate(0) %}

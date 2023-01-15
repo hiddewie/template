@@ -416,6 +416,26 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
                 Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
+        "abbreviate" => {
+            let n = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("drop".to_string()))?;
+            if let Value::Number(n_value) = n {
+                if let Value::String(string) = value {
+                    n_value.as_u64()
+                        .ok_or_else(|| TemplateRenderError::TypeError(type_of(&n)))
+                        .map(|n_value_int| {
+                            if string.len() <= n_value_int as usize {
+                                Value::String(string.clone())
+                            } else {
+                                Value::String(format!("{}…", string.as_str()[0..((n_value_int.max(1) as usize)-1)].to_string()))
+                            }
+                        })
+                } else {
+                    Err(TemplateRenderError::TypeError(type_of(&value)))
+                }
+            } else {
+                Err(TemplateRenderError::TypeError(type_of(&n)))
+            }
+        }
         _ => unreachable!()
     };
 }

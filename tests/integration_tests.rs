@@ -605,6 +605,9 @@ fromJson: {}
 fromJson: [1,2,3]
 fromJson: 1
 fromJson:
+abbreviate: a…
+abbreviate: abdef
+abbreviate: …
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'
