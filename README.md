@@ -210,3 +210,11 @@ cargo build
 ```shell
 cargo test
 ```
+
+## Release
+
+Go to the (Release workflow)[https://github.com/hiddewie/template/actions/workflows/release.yml].
+
+Click the *Run workflow* button, and give the following inputs:
+- *Branch*: `master`
+- *Version*: The next version to release, e.g. `1.2.3`
