@@ -46,7 +46,7 @@ jobs:
       - release
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         include:
           - host: ubuntu-latest
@@ -59,6 +59,8 @@ jobs:
             target: x86_64-apple-darwin
 
     runs-on: ${{ matrix.host }}
+
+    continue-on-error: true
 
     steps:
       - name: Checkout
@@ -85,12 +87,14 @@ jobs:
       - name: Build
         run: cargo build --release --all-features --target ${{ matrix.target }}
 
-      - run: |
+      - name: Rename asset
+        run: |
           git diff
           ls -la target/release
+          mv target/release/template "target/release/template-v${{ github.event.inputs.version }}-${{ matrix.target }}"
 
       - name: Publish asset
-        run: gh release upload "v${{ github.event.inputs.version }}" target/release/template
+        run: gh release upload "v${{ github.event.inputs.version }}" "target/release/template-v${{ github.event.inputs.version }}-${{ matrix.target }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
