@@ -91,11 +91,11 @@ jobs:
       - name: Build
         run: cargo build --release --all-features --target ${{ matrix.target }}
 
-      - name: Rename asset (Windows)
-        run: mv target/release/template "target/release/template-v${{ github.event.inputs.version }}-${{ matrix.target }}"
+      - name: Rename asset
+        run: mv target/${{ matrix.target }}/release/template "template-v${{ github.event.inputs.version }}-${{ matrix.target }}"
 
       - name: Publish asset
-        run: gh release upload "v${{ github.event.inputs.version }}" "target/release/template-v${{ github.event.inputs.version }}-${{ matrix.target }}"
+        run: gh release upload "v${{ github.event.inputs.version }}" "template-v${{ github.event.inputs.version }}-${{ matrix.target }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
