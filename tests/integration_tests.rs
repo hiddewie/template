@@ -552,7 +552,7 @@ fn function_error() {
         .stderr(r#"Using template file 'tests/template/function_error.template'
 Using configuration file 'tests/configuration/function_error.json'
 Parsing configuration using JSON format
-ERROR: Could not render template: &serde_json::value::Value
+ERROR: Could not render template: Type error: &serde_json::value::Value
 "#);
 }
 
@@ -628,6 +628,8 @@ first: 1
 first:
 last: 3
 last:
+contains: true
+contains: false
 "#)
         .stderr(r#"Using template file 'tests/template/array_functions.template'
 Using configuration file 'tests/configuration/empty.json'
@@ -649,6 +651,10 @@ fn dictionary_functions() {
         .success()
         .stdout(r#"length: 0
 length: 3
+containsKey: true
+containsKey: false
+containsValue: true
+containsValue: false
 "#)
         .stderr(r#"Using template file 'tests/template/dictionary_functions.template'
 Using configuration file 'tests/configuration/empty.json'

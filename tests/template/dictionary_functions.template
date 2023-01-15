@@ -1,2 +1,6 @@
 length: {% {} | length %}
 length: {% {a:1, b:2, c:3} | length %}
+containsKey: {% {a:1, b:2, c:3} | containsKey("a") %}
+containsKey: {% {} | containsKey("a") %}
+containsValue: {% {a:1, b:2, c:3} | containsValue(1) %}
+containsValue: {% {} | containsValue("a") %}

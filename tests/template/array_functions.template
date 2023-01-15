@@ -11,3 +11,5 @@ first: {% [1,2,3] | first %}
 first:{% [] | first %}
 last: {% [1,2,3] | last %}
 last:{% [] | last %}
+contains: {% ["a", "b", "c"] | contains("a") %}
+contains: {% [] | contains("a") %}

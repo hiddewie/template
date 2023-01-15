@@ -194,10 +194,13 @@ Apply a function in a template by using the pipe `|` operator:
 - `drop(n)`: drops the first `n` items from the array.
 - `first`: the first item from the array, if it exists.
 - `last`: the last item from the array, if it exists.
+- `contains(value)`: whether the array contains the value.
 
 #### Dictionary functions
 
 - `length`: size of the dictionary
+- `containsKey(key)`: whether the array contains the key.
+- `containsValue(value)`: whether the array contains the value.
 
 ## Development
 

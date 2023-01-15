@@ -334,6 +334,34 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
                 Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
+        "contains" => {
+            let needle = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("contains".to_string()))?;
+            if let Value::Array(array) = value {
+                Ok(Value::Bool(array.contains(needle)))
+            } else {
+                Err(TemplateRenderError::TypeError(type_of(&needle)))
+            }
+        }
+        "containsKey" => {
+            let key = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("containsKey".to_string()))?;
+            if let Value::Object(object) = value {
+                if let Value::String(key_value) = key {
+                    Ok(Value::Bool(object.contains_key(key_value)))
+                } else {
+                    Err(TemplateRenderError::TypeError(type_of(&key)))
+                }
+            } else {
+                Err(TemplateRenderError::TypeError(type_of(&value)))
+            }
+        }
+        "containsValue" => {
+            let needle = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("containsValue".to_string()))?;
+            if let Value::Object(object) = value {
+                Ok(Value::Bool(object.values().any(|val| val == needle)))
+            } else {
+                Err(TemplateRenderError::TypeError(type_of(&value)))
+            }
+        }
         _ => unreachable!()
     };
 }
@@ -727,10 +755,10 @@ fn main() {
     let result = evaluate_file(&configuration, file)
         .unwrap_or_else(|template_render_error| {
             match template_render_error {
-                TemplateRenderError::TypeError(value) => eprintln!("ERROR: Could not render template: {}", value),
-                TemplateRenderError::LiteralParseError(value) => eprintln!("ERROR: Could not render template: {}", value),
-                TemplateRenderError::RequiredArgumentMissing(value) => eprintln!("ERROR: Could not render template: {}", value),
-                TemplateRenderError::InvalidRegexError(value) => eprintln!("ERROR: Could not render template: {}", value),
+                TemplateRenderError::TypeError(value) => eprintln!("ERROR: Could not render template: Type error: {}", value),
+                TemplateRenderError::LiteralParseError(value) => eprintln!("ERROR: Could not render template: Parsing error: {}", value),
+                TemplateRenderError::RequiredArgumentMissing(value) => eprintln!("ERROR: Could not render template: Required argument is missing: {}", value),
+                TemplateRenderError::InvalidRegexError(value) => eprintln!("ERROR: Could not render template: Invalid regular expression: {}", value),
             }
             exit(ERR_RENDERING_TEMPLATE)
         });
