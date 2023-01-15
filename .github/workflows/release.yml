@@ -38,4 +38,4 @@ jobs:
           target: ${{ matrix.target }}
 
       - name: Build
-        run: cargo build --release --all-features
+        run: cargo build --release --all-features --target ${{ matrix.target }}
