@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Create release
         run: gh release create "v${{ github.event.inputs.version }}" --draft --generate-notes --title "Version ${{ github.event.inputs.version }}" --latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-assets:
     name: Build Github assets and Cargo publish
@@ -62,6 +64,8 @@ jobs:
 
       - name: Publish asset
         run: gh release edit "v${{ github.event.inputs.version }}" ${{ github.event.inputs.version }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to Cargo
         if: ${{ matrix.target == 'x86_64-unknown-linux-gnu' }}
@@ -79,3 +83,5 @@ jobs:
     steps:
       - name: Publish release
         run: gh release edit "v${{ github.event.inputs.version }}" --draft=false
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
