@@ -362,6 +362,9 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
                 Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
+        "empty" => {
+            Ok(Value::Bool(!to_boolean(value)))
+        }
         _ => unreachable!()
     };
 }

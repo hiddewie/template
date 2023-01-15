@@ -158,10 +158,16 @@ Apply a function in a template by using the pipe `|` operator:
 {% value | function1 | function2 | function3 %}
 ```
 
+Some functions take one or more arguments, which can be passed by using parentheses:
+```
+{% value | function(argument1, argument2) %}
+```
+
 #### General functions
 
 - `default(value)`: default value if the argument is falsy.
 - `toString`: transform the value to a string.
+- `empty`: Whether the value is not "truthy", i.e. `null`, `0`, `0.0`, `-0.0`, `""`, `"  "`, `[]` or `{}`.
 
 #### String functions
 

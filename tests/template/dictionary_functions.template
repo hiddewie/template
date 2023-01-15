@@ -4,3 +4,5 @@ containsKey: {% {a:1, b:2, c:3} | containsKey("a") %}
 containsKey: {% {} | containsKey("a") %}
 containsValue: {% {a:1, b:2, c:3} | containsValue(1) %}
 containsValue: {% {} | containsValue("a") %}
+empty: {% {a:1} | empty %}
+empty: {% {} | empty %}

@@ -596,9 +596,59 @@ take: hel
 drop:
 drop: hello world
 drop: lo world
+empty: false
+empty: true
+empty: true
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'
+Parsing configuration using JSON format
+"#);
+}
+
+#[test]
+fn number_functions() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("--template")
+        .arg("tests/template/number_functions.template")
+        .arg("--configuration")
+        .arg("tests/configuration/empty.json")
+        .assert();
+
+    assert
+        .success()
+        .stdout(r#"empty: true
+empty: true
+empty: true
+empty: true
+empty: false
+empty: false
+empty: false
+"#)
+        .stderr(r#"Using template file 'tests/template/number_functions.template'
+Using configuration file 'tests/configuration/empty.json'
+Parsing configuration using JSON format
+"#);
+}
+
+#[test]
+fn boolean_functions() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("--template")
+        .arg("tests/template/boolean_functions.template")
+        .arg("--configuration")
+        .arg("tests/configuration/empty.json")
+        .assert();
+
+    assert
+        .success()
+        .stdout(r#"empty: true
+empty: false
+"#)
+        .stderr(r#"Using template file 'tests/template/boolean_functions.template'
+Using configuration file 'tests/configuration/empty.json'
 Parsing configuration using JSON format
 "#);
 }
@@ -630,6 +680,8 @@ last: 3
 last:
 contains: true
 contains: false
+empty: false
+empty: true
 "#)
         .stderr(r#"Using template file 'tests/template/array_functions.template'
 Using configuration file 'tests/configuration/empty.json'
@@ -655,6 +707,8 @@ containsKey: true
 containsKey: false
 containsValue: true
 containsValue: false
+empty: false
+empty: true
 "#)
         .stderr(r#"Using template file 'tests/template/dictionary_functions.template'
 Using configuration file 'tests/configuration/empty.json'

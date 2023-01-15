@@ -1,0 +1,7 @@
+empty: {% 0.0 | empty %}
+empty: {% 0 | empty %}
+empty: {% -0 | empty %}
+empty: {% -0.0 | empty %}
+empty: {% -1.0 | empty %}
+empty: {% 1.0 | empty %}
+empty: {% 1 | empty %}

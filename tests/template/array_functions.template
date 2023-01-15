@@ -13,3 +13,5 @@ last: {% [1,2,3] | last %}
 last:{% [] | last %}
 contains: {% ["a", "b", "c"] | contains("a") %}
 contains: {% [] | contains("a") %}
+empty: {% [1] | empty %}
+empty: {% [] | empty %}

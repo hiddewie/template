@@ -1,0 +1,2 @@
+empty: {% false | empty %}
+empty: {% true | empty %}

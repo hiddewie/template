@@ -25,3 +25,6 @@ take: {% "hello world" | take(3) %}
 drop:{% "hello world" | drop(100) %}
 drop: {% "hello world" | drop(0) %}
 drop: {% "hello world" | drop(3) %}
+empty: {% "hello" | empty %}
+empty: {% "" | empty %}
+empty: {% "  " | empty %}
