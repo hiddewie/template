@@ -34,6 +34,7 @@ function = {
     "capitalize" |
     "environment" |
     "default" |
+    "coalesce" |
     "reverse" |
     "split" |
     "matches" |

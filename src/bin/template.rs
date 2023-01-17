@@ -222,6 +222,14 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
             let default_value = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("default".to_string()))?;
             Ok(default(value, &default_value))
         }
+        "coalesce" => {
+            let default_value = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("default".to_string()))?;
+            let result = match value {
+                Value::Null => default_value,
+                _ => value,
+            };
+            Ok(result.clone())
+        }
         "reverse" => {
             match value {
                 Value::String(string) => Ok(Value::String(String::from_iter(string.chars().rev()))),

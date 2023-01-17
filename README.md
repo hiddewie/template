@@ -166,6 +166,7 @@ Some functions take one or more arguments, which can be passed by using parenthe
 #### General functions
 
 - `default(value)`: default value if the argument is falsy.
+- `coalesce(value)`: default value if the argument is `null`.
 - `toString`: transform the value to a string.
 - `empty`: whether the value is not "truthy", i.e. `null`, `0`, `0.0`, `-0.0`, `""`, `"  "`, `[]` or `{}`.
 - `toJson`: format a value to JSON.

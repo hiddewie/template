@@ -826,6 +826,8 @@ default
 [1]
 default
 {a:a}
+coalesce: x
+coalesce: something
 "#)
         .stderr(r#"Using template file 'tests/template/default.template'
 Using configuration file 'tests/configuration/empty.json'

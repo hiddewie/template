@@ -14,3 +14,5 @@
 {% [1] | default("not") %}
 {% {} | default("default") %}
 {% {a:"a"} | default("not") %}
+coalesce: {% "x" | coalesce("something") %}
+coalesce: {% null | coalesce("something") %}
