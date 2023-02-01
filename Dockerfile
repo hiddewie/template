@@ -1,6 +1,7 @@
 FROM rust:1 AS builder
 
-RUN case "$apkArch" in \
+ARG TARGETARCH
+RUN case "$TARGETARCH" in \
         arm64) export RUST_TARGET="aarch64-unknown-linux-musl" ;; \
         amd64) export RUST_TARGET="x86_64-unknown-linux-musl" ;; \
     esac && \
