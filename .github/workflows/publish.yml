@@ -1,0 +1,148 @@
+on:
+  push:
+    tags:
+      - 'v*'
+
+name: Publish
+
+jobs:
+  release:
+    name: Generate Github release and tag
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create release
+        run: gh release create "v{{ github.ref_name }}" --draft --generate-notes --title "Version {{ github.ref_name }}" --latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-assets:
+    name: Build Github assets and Cargo publish
+
+    needs:
+      - release
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - host: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - host: windows-latest
+            target: x86_64-pc-windows-msvc
+          - host: windows-latest
+            target: i686-pc-windows-msvc
+          - host: macos-latest
+            target: x86_64-apple-darwin
+
+    runs-on: ${{ matrix.host }}
+
+    continue-on-error: true
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          default: true
+          target: ${{ matrix.target }}
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build
+        run: cargo build --release --all-features --target ${{ matrix.target }}
+
+      - name: Rename asset
+        run: mv "target/${{ matrix.target }}/release/template${{ matrix.host == 'windows-latest' && '.exe' || '' }}" "target/template-v{{ github.ref_name }}-${{ matrix.target }}"
+
+      - name: Publish asset
+        run: gh release upload "v{{ github.ref_name }}" "target/template-v{{ github.ref_name }}-${{ matrix.target }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to Cargo
+        if: ${{ matrix.target == 'x86_64-unknown-linux-gnu' }}
+        run: |
+          cargo login "${{ secrets.CARGO_API_TOKEN }}"
+          cargo publish
+
+  publish:
+    name: Publish Github release
+    needs:
+      - build-assets
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Publish release
+        run: gh release edit "v{{ github.ref_name }}" --draft=false
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  docker:
+    name: Publish Docker packages
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          platforms: linux/amd64,linux/arm64
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/hiddewie/template
+          flavor: |
+            latest=true
+            prefix=,onlatest=true
+            suffix=,onlatest=true
+          tags: |
+            type=raw,value=v{{ github.ref_name }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          platforms: linux/amd64,linux/arm64
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
