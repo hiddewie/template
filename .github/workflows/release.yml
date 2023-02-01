@@ -39,3 +39,5 @@ jobs:
 
       - name: Trigger publish
         run: gh workflow run publish.yml --ref "v${{ github.event.inputs.version }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
