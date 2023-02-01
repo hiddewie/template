@@ -38,6 +38,6 @@ jobs:
           git push origin "v${{ github.event.inputs.version }}"
 
       - name: Trigger publish
-        run: gh workflow run publish.yml --ref "v${{ github.event.inputs.version }}"
+        run: gh workflow run publish.yml --ref "refs/tags/v${{ github.event.inputs.version }}"
         env:
           GH_TOKEN: ${{ github.token }}
