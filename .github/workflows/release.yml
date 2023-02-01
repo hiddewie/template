@@ -36,3 +36,6 @@ jobs:
           git push
           git tag --annotate --message 'Version ${{ github.event.inputs.version }}' "v${{ github.event.inputs.version }}"
           git push origin "v${{ github.event.inputs.version }}"
+
+      - name: Trigger publish
+        run: gh workflow run publish.yml --ref "v${{ github.event.inputs.version }}"
