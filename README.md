@@ -4,12 +4,22 @@ CLI for templating based on JSON, YAML or HCL configuration.
 
 ## Installation
 
+### Cargo
+
 Install with
 ```shell
 cargo install template-cli
 ```
 
-Alternatively, you can download a pre-compiled binaries for multiple architectures and operating systems from the [Latest Release page](https://github.com/hiddewie/template/releases/latest).
+### Precompiled binaries
+
+You can download a pre-compiled binaries for multiple architectures and operating systems from the [Latest Release page](https://github.com/hiddewie/template/releases/latest).
+
+### Docker
+
+The binaries are shipped as [Docker images](https://github.com/hiddewie/template/pkgs/container/template). 
+
+In the usage instructions below, replace all usages of `template` with `docker run --rm ghcr.io/hiddewie/template`.
 
 ## Usage
 
