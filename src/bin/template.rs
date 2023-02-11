@@ -20,7 +20,7 @@ use template_cli::function;
 use template_cli::error::TemplateRenderError;
 
 #[derive(Parser)]
-#[grammar = "template.pest"]
+#[grammar = "grammar/template.pest"]
 pub struct TemplateParser;
 
 #[derive(clap::ValueEnum, Clone, Eq, PartialEq)]

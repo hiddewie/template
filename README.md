@@ -86,7 +86,7 @@ If the configuration file has a different extension, or when the configuration i
 
 ## Templating
 
-See [Pest grammar](./src/template.pest) for formal template grammar.
+See [Pest grammar](src/grammar/template.pest) for formal template grammar.
 
 It is recommended to use the extension `.template` for template files.
 
