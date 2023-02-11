@@ -56,6 +56,7 @@ fn type_of<T>(_: &T) -> String {
 
 #[derive(Debug)]
 enum TemplateRenderError {
+    UnknownFunctionError(String),
     TypeError(String),
     LiteralParseError(String),
     RequiredArgumentMissing(String),
@@ -66,6 +67,7 @@ enum TemplateRenderError {
 impl Display for TemplateRenderError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
+            TemplateRenderError::UnknownFunctionError(string) => f.write_str(format!("Unknown function {}", string.as_str()).as_str())?,
             TemplateRenderError::TypeError(string) => f.write_str(format!("Invalid type {}", string.as_str()).as_str())?,
             TemplateRenderError::LiteralParseError(string) => f.write_str(format!("Could not parse literal '{}'", string.as_str()).as_str())?,
             TemplateRenderError::RequiredArgumentMissing(string) => f.write_str(format!("Required argument is missing for function {}", string.as_str()).as_str())?,
@@ -465,7 +467,7 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
                 Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
-        _ => unreachable!()
+        _ => Err(TemplateRenderError::UnknownFunctionError(function.to_string()))
     };
 }
 
@@ -858,6 +860,7 @@ fn main() {
     let result = evaluate_file(&configuration, file)
         .unwrap_or_else(|template_render_error| {
             match template_render_error {
+                TemplateRenderError::UnknownFunctionError(value) => eprintln!("ERROR: Could not render template: Unknown function: {}", value),
                 TemplateRenderError::TypeError(value) => eprintln!("ERROR: Could not render template: Type error: {}", value),
                 TemplateRenderError::LiteralParseError(value) => eprintln!("ERROR: Could not render template: Parsing error: {}", value),
                 TemplateRenderError::RequiredArgumentMissing(value) => eprintln!("ERROR: Could not render template: Required argument is missing: {}", value),

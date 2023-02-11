@@ -834,3 +834,23 @@ Using configuration file 'tests/configuration/empty.json'
 Parsing configuration using JSON format
 "#);
 }
+
+#[test]
+fn unknown_function_call() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("--template")
+        .arg("tests/template/unknown_function.template")
+        .arg("--configuration")
+        .arg("tests/configuration/empty.json")
+        .assert();
+
+    assert
+        .code(6)
+        .stdout("")
+        .stderr(r#"Using template file 'tests/template/unknown_function.template'
+Using configuration file 'tests/configuration/empty.json'
+Parsing configuration using JSON format
+ERROR: Could not render template: Unknown function: doesNotExist
+"#);
+}

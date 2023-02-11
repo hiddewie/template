@@ -22,42 +22,7 @@ keywords = _{
 }
 property = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_" | "-")* }
 properties = { property ~ ("." ~ property)* }
-function = {
-    "lowerCase" |
-    "upperCase" |
-    "kebabCase" |
-    "camelCase" |
-    "snakeCase" |
-    "pascalCase" |
-    "length" |
-    "capitalizeWords" |
-    "capitalize" |
-    "environment" |
-    "default" |
-    "coalesce" |
-    "reverse" |
-    "split" |
-    "matches" |
-    "substring" |
-    "take" |
-    "first" |
-    "last" |
-    "drop" |
-    "containsKey" |
-    "containsValue" |
-    "contains" |
-    "empty" |
-    "unique" |
-    "keys" |
-    "values" |
-    "invert" |
-    "toJson" |
-    "fromJson" |
-    "abbreviate" |
-    "trimLeft" |
-    "trimRight" |
-    "trim"
-}
+function = { ASCII_ALPHA+ }
 boolean = { "true" | "false" }
 floating_point_number = { "-"? ~ ((ASCII_DIGIT* ~ "." ~ ASCII_DIGIT+) | (ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT*)) ~ (("e" | "E") ~ "-"? ~ ASCII_DIGIT+)? }
 integer_number = { "-"? ~ ASCII_DIGIT+ }
