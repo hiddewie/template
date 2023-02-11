@@ -552,7 +552,7 @@ fn function_error() {
         .stderr(r#"Using template file 'tests/template/function_error.template'
 Using configuration file 'tests/configuration/function_error.json'
 Parsing configuration using JSON format
-ERROR: Could not render template: Type error: &serde_json::value::Value
+ERROR: Could not render template: Invalid type '&serde_json::value::Value'
 "#);
 }
 
@@ -851,6 +851,6 @@ fn unknown_function_call() {
         .stderr(r#"Using template file 'tests/template/unknown_function.template'
 Using configuration file 'tests/configuration/empty.json'
 Parsing configuration using JSON format
-ERROR: Could not render template: Unknown function: doesNotExist
+ERROR: Could not render template: Unknown function 'doesNotExist'
 "#);
 }

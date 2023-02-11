@@ -67,8 +67,8 @@ enum TemplateRenderError {
 impl Display for TemplateRenderError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            TemplateRenderError::UnknownFunctionError(string) => f.write_str(format!("Unknown function {}", string.as_str()).as_str())?,
-            TemplateRenderError::TypeError(string) => f.write_str(format!("Invalid type {}", string.as_str()).as_str())?,
+            TemplateRenderError::UnknownFunctionError(string) => f.write_str(format!("Unknown function '{}'", string.as_str()).as_str())?,
+            TemplateRenderError::TypeError(string) => f.write_str(format!("Invalid type '{}'", string.as_str()).as_str())?,
             TemplateRenderError::LiteralParseError(string) => f.write_str(format!("Could not parse literal '{}'", string.as_str()).as_str())?,
             TemplateRenderError::RequiredArgumentMissing(string) => f.write_str(format!("Required argument is missing for function {}", string.as_str()).as_str())?,
             TemplateRenderError::InvalidRegexError(regex) => f.write_str(format!("Invalid regular expression given: '{}'", regex.as_str()).as_str())?,
@@ -859,14 +859,7 @@ fn main() {
 
     let result = evaluate_file(&configuration, file)
         .unwrap_or_else(|template_render_error| {
-            match template_render_error {
-                TemplateRenderError::UnknownFunctionError(value) => eprintln!("ERROR: Could not render template: Unknown function: {}", value),
-                TemplateRenderError::TypeError(value) => eprintln!("ERROR: Could not render template: Type error: {}", value),
-                TemplateRenderError::LiteralParseError(value) => eprintln!("ERROR: Could not render template: Parsing error: {}", value),
-                TemplateRenderError::RequiredArgumentMissing(value) => eprintln!("ERROR: Could not render template: Required argument is missing: {}", value),
-                TemplateRenderError::InvalidRegexError(value) => eprintln!("ERROR: Could not render template: Invalid regular expression: {}", value),
-                TemplateRenderError::JsonParseError(value) => eprintln!("ERROR: Could not render template: Invalid JSON: {}", value),
-            }
+            eprintln!("ERROR: Could not render template: {}", template_render_error);
             exit(ERR_RENDERING_TEMPLATE)
         });
 
