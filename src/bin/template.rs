@@ -11,14 +11,15 @@ use std::process::exit;
 use std::rc::Rc;
 
 use clap::Parser as ClapParser;
+use itertools::Itertools;
 use pest::iterators::Pair;
 use pest::iterators::Pairs;
 use pest::Parser;
 use regex::Regex;
 use serde_json::{Map, Value};
 use serde_json::error::Category;
+
 use crate::ConfigurationFormat::{HCL, YAML};
-use itertools::Itertools;
 
 #[derive(Parser)]
 #[grammar = "template.pest"]
@@ -154,55 +155,68 @@ fn default(value: &Value, default: &Value) -> Value {
     }
 }
 
+fn require_string_value(value: &Value) -> Result<&String, TemplateRenderError> {
+    match value {
+        Value::String(string) => Ok(string),
+        _ => Err(TemplateRenderError::TypeError(type_of(&value)))
+    }
+}
+
+fn require_u64_value(value: &Value) -> Result<u64, TemplateRenderError> {
+    value.as_u64()
+        .ok_or_else(|| TemplateRenderError::TypeError(type_of(&value)))
+}
+
+fn require_array_value(value: &Value) -> Result<&Vec<Value>, TemplateRenderError> {
+    value.as_array()
+        .ok_or_else(|| TemplateRenderError::TypeError(type_of(&value)))
+}
+
+fn require_object_value(value: &Value) -> Result<&Map<String, Value>, TemplateRenderError> {
+    value.as_object()
+        .ok_or_else(|| TemplateRenderError::TypeError(type_of(&value)))
+}
+
+fn require_argument<'a>(function: &'a str, arguments: &'a Vec<Value>, index: usize) -> Result<&'a Value, TemplateRenderError> {
+    arguments.get(index)
+        .ok_or_else(||
+            TemplateRenderError::RequiredArgumentMissing(format!("Argument {} is missing for function '{}'", index + 1, function.to_string()))
+        )
+}
+
 fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Result<Value, TemplateRenderError> {
     return match function {
         "lowerCase" => {
-            match value {
-                Value::String(string) => Ok(Value::String(string.to_lowercase())),
-                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let string = require_string_value(value)?;
+            Ok(Value::String(string.to_lowercase()))
         }
         "upperCase" => {
-            match value {
-                Value::String(string) => Ok(Value::String(string.to_uppercase())),
-                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let string = require_string_value(value)?;
+            Ok(Value::String(string.to_uppercase()))
         }
         "kebabCase" => {
-            match value {
-                Value::String(string) => Ok(Value::String(kebab_case(string))),
-                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let string = require_string_value(value)?;
+            Ok(Value::String(kebab_case(string)))
         }
         "snakeCase" => {
-            match value {
-                Value::String(string) => Ok(Value::String(snake_case(string))),
-                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let string = require_string_value(value)?;
+            Ok(Value::String(snake_case(string)))
         }
         "camelCase" => {
-            match value {
-                Value::String(string) => Ok(Value::String(camel_case(string))),
-                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let string = require_string_value(value)?;
+            Ok(Value::String(camel_case(string)))
         }
         "pascalCase" => {
-            match value {
-                Value::String(string) => Ok(Value::String(pascal_case(string))),
-                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let string = require_string_value(value)?;
+            Ok(Value::String(pascal_case(string)))
         }
         "capitalize" => {
-            match value {
-                Value::String(string) => Ok(Value::String(capitalize(string))),
-                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let string = require_string_value(value)?;
+            Ok(Value::String(capitalize(string)))
         }
         "capitalizeWords" => {
-            match value {
-                Value::String(string) => Ok(Value::String(capitalize_words(string))),
-                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let string = require_string_value(value)?;
+            Ok(Value::String(capitalize_words(string)))
         }
         "length" => {
             match value {
@@ -213,19 +227,17 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
             }
         }
         "environment" => {
-            match value {
-                Value::String(string) => Ok(environment(string)
-                    .map(|value| Value::from(value))
-                    .unwrap_or(Value::Null)),
-                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let string = require_string_value(value)?;
+            Ok(environment(string)
+                .map(|value| Value::from(value))
+                .unwrap_or(Value::Null))
         }
         "default" => {
-            let default_value = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("default".to_string()))?;
+            let default_value = require_argument(function, arguments, 0)?;
             Ok(default(value, &default_value))
         }
         "coalesce" => {
-            let default_value = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("default".to_string()))?;
+            let default_value = require_argument(function, arguments, 0)?;
             let result = match value {
                 Value::Null => default_value,
                 _ => value,
@@ -244,228 +256,132 @@ fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> Resu
             }
         }
         "split" => {
-            match value {
-                Value::String(string) => {
-                    let splitter = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("split".to_string()))?;
-                    match splitter {
-                        Value::String(splitter_string) => {
-                            let split_strings = string.split(splitter_string).map(|split| Value::String(split.to_string())).collect();
-                            Ok(Value::Array(split_strings))
-                        }
-                        _ => Err(TemplateRenderError::TypeError(type_of(&splitter)))
-                    }
-                }
-                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let string = require_string_value(value)?;
+            let splitter = require_argument(function, arguments, 0)?;
+            let splitter_string = require_string_value(splitter)?;
+            let split_strings = string.split(splitter_string).map(|split| Value::String(split.to_string())).collect();
+            Ok(Value::Array(split_strings))
         }
         "matches" => {
-            match value {
-                Value::String(string) => {
-                    let regex = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("matches".to_string()))?;
-                    match regex {
-                        Value::String(regex_string) => {
-                            let re = Regex::new(regex_string).map_err(|_err| TemplateRenderError::InvalidRegexError(string.to_string()))?;
-                            Ok(Value::Bool(re.is_match(string.as_str())))
-                        }
-                        _ => Err(TemplateRenderError::TypeError(type_of(&regex)))
-                    }
-                }
-                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let string = require_string_value(value)?;
+            let regex = require_argument(function, arguments, 0)?;
+            let regex_string = require_string_value(regex)?;
+            let re = Regex::new(regex_string).map_err(|_err| TemplateRenderError::InvalidRegexError(string.to_string()))?;
+            Ok(Value::Bool(re.is_match(string.as_str())))
         }
         "substring" => {
-            match value {
-                Value::String(string) => {
-                    let from = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("substring".to_string()))?;
-                    let to = arguments.get(1);
-                    if let Value::Number(from_value) = from {
-                        if from_value.is_u64() {
-                            if to.is_some() {
-                                if to.unwrap().is_u64() {
-                                    Ok(Value::String(string[usize::try_from(from_value.as_u64().unwrap()).unwrap().max(0).min(string.len())..usize::try_from(to.unwrap().as_u64().unwrap()).unwrap().max(0).min(string.len())].to_string()))
-                                } else {
-                                    Err(TemplateRenderError::TypeError(type_of(&to)))
-                                }
-                            } else {
-                                Ok(Value::String(string[usize::try_from(from_value.as_u64().unwrap()).unwrap().max(0).min(string.len())..].to_string()))
-                            }
-                        } else {
-                            Err(TemplateRenderError::TypeError(type_of(&from)))
-                        }
-                    } else {
-                        Err(TemplateRenderError::TypeError(type_of(&from)))
-                    }
-                }
-                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
+            let string = require_string_value(value)?;
+            let from = require_argument(function, arguments, 0)?;
+            let from_value = require_u64_value(from)?;
+            let to = arguments.get(1);
+            if to.is_some() {
+                let to_value = require_u64_value(to.unwrap())?;
+                Ok(Value::String(string[usize::try_from(from_value).unwrap().max(0).min(string.len())..usize::try_from(to_value).unwrap().max(0).min(string.len())].to_string()))
+            } else {
+                Ok(Value::String(string[usize::try_from(from_value).unwrap().max(0).min(string.len())..].to_string()))
             }
         }
         "take" => {
-            let n = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("take".to_string()))?;
-            if let Value::Number(n_value) = n {
-                if n_value.is_u64() {
-                    let to_index = usize::try_from(n_value.as_u64().unwrap()).unwrap();
-                    match value {
-                        Value::String(string) => Ok(Value::String(string[..to_index.max(0).min(string.len())].to_string())),
-                        Value::Array(array) => Ok(Value::Array(array[..to_index.max(0).min(array.len())].to_vec())),
-                        _ => Err(TemplateRenderError::TypeError(type_of(&value)))
-                    }
-                } else {
-                    Err(TemplateRenderError::TypeError(type_of(&n_value)))
-                }
-            } else {
-                Err(TemplateRenderError::TypeError(type_of(&n)))
+            let n = require_argument(function, arguments, 0)?;
+            let n_value = require_u64_value(n)?;
+            let to_index = usize::try_from(n_value).unwrap();
+            match value {
+                Value::String(string) => Ok(Value::String(string[..to_index.max(0).min(string.len())].to_string())),
+                Value::Array(array) => Ok(Value::Array(array[..to_index.max(0).min(array.len())].to_vec())),
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
         "drop" => {
-            let n = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("drop".to_string()))?;
-            if let Value::Number(n_value) = n {
-                if n_value.is_u64() {
-                    let from_index = usize::try_from(n_value.as_u64().unwrap()).unwrap();
-                    match value {
-                        Value::String(string) => Ok(Value::String(string[from_index.max(0).min(string.len())..].to_string())),
-                        Value::Array(array) => Ok(Value::Array(array[from_index.max(0).min(array.len())..].to_vec())),
-                        _ => Err(TemplateRenderError::TypeError(type_of(&value)))
-                    }
-                } else {
-                    Err(TemplateRenderError::TypeError(type_of(&n_value)))
-                }
-            } else {
-                Err(TemplateRenderError::TypeError(type_of(&n)))
+            let n = require_argument(function, arguments, 0)?;
+            let n_value = require_u64_value(n)?;
+            let from_index = usize::try_from(n_value).unwrap();
+            match value {
+                Value::String(string) => Ok(Value::String(string[from_index.max(0).min(string.len())..].to_string())),
+                Value::Array(array) => Ok(Value::Array(array[from_index.max(0).min(array.len())..].to_vec())),
+                _ => Err(TemplateRenderError::TypeError(type_of(&value)))
             }
         }
         "first" => {
-            if let Value::Array(array) = value {
-                Ok(array.first().unwrap_or(&Value::Null).clone())
-            } else {
-                Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let array = require_array_value(value)?;
+            Ok(array.first().unwrap_or(&Value::Null).clone())
         }
         "last" => {
-            if let Value::Array(array) = value {
-                Ok(array.last().unwrap_or(&Value::Null).clone())
-            } else {
-                Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let array = require_array_value(value)?;
+            Ok(array.last().unwrap_or(&Value::Null).clone())
         }
         "contains" => {
-            let needle = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("contains".to_string()))?;
-            if let Value::Array(array) = value {
-                Ok(Value::Bool(array.contains(needle)))
-            } else {
-                Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let needle = require_argument(function, arguments, 0)?;
+            let array = require_array_value(value)?;
+            Ok(Value::Bool(array.contains(needle)))
         }
         "containsKey" => {
-            let key = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("containsKey".to_string()))?;
-            if let Value::Object(object) = value {
-                if let Value::String(key_value) = key {
-                    Ok(Value::Bool(object.contains_key(key_value)))
-                } else {
-                    Err(TemplateRenderError::TypeError(type_of(&key)))
-                }
-            } else {
-                Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let key = require_argument(function, arguments, 0)?;
+            let object = require_object_value(value)?;
+            let key_value = require_string_value(key)?;
+            Ok(Value::Bool(object.contains_key(key_value)))
         }
         "containsValue" => {
-            let needle = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("containsValue".to_string()))?;
-            if let Value::Object(object) = value {
-                Ok(Value::Bool(object.values().any(|val| val == needle)))
-            } else {
-                Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let needle = require_argument(function, arguments, 0)?;
+            let object = require_object_value(value)?;
+            Ok(Value::Bool(object.values().any(|val| val == needle)))
         }
         "empty" => {
             Ok(Value::Bool(!to_boolean(value)))
         }
         "unique" => {
-            if let Value::Array(array) = value {
-                let unique = array.clone().into_iter()
-                    .unique_by(|item| format!("{item}"))
-                    .collect::<Vec<_>>();
-                Ok(Value::Array(unique))
-            } else {
-                Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let array = require_array_value(value)?;
+            let unique = array.clone().into_iter()
+                .unique_by(|item| format!("{item}"))
+                .collect::<Vec<_>>();
+            Ok(Value::Array(unique))
         }
         "keys" => {
-            if let Value::Object(object) = value {
-                let keys = object.keys().into_iter().map(|key| Value::String(key.clone())).collect::<Vec<_>>();
-                Ok(Value::Array(keys))
-            } else {
-                Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let object = require_object_value(value)?;
+            let keys = object.keys().into_iter().map(|key| Value::String(key.clone())).collect::<Vec<_>>();
+            Ok(Value::Array(keys))
         }
         "values" => {
-            if let Value::Object(object) = value {
-                Ok(Value::Array(object.values().cloned().into_iter().collect::<Vec<_>>()))
-            } else {
-                Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let object = require_object_value(value)?;
+            Ok(Value::Array(object.values().cloned().into_iter().collect::<Vec<_>>()))
         }
         "invert" => {
-            if let Value::Object(object) = value {
-                if let Some(item) = object.values().into_iter().find(|value| !value.is_string()) {
-                    Err(TemplateRenderError::TypeError(type_of(&item)))
-                } else {
-                    let inverted = object.clone().into_iter().map(|(key, value)| (value.as_str().unwrap().to_string(), Value::String(key))).collect();
-                    Ok(Value::Object(inverted))
-                }
+            let object = require_object_value(value)?;
+            if let Some(item) = object.values().into_iter().find(|value| !value.is_string()) {
+                Err(TemplateRenderError::TypeError(type_of(&item)))
             } else {
-                Err(TemplateRenderError::TypeError(type_of(&value)))
+                let inverted = object.clone().into_iter().map(|(key, value)| (value.as_str().unwrap().to_string(), Value::String(key))).collect();
+                Ok(Value::Object(inverted))
             }
         }
         "toJson" => {
             Ok(Value::String(format!("{value}")))
         }
         "fromJson" => {
-            if let Value::String(string) = value {
-                serde_json::from_str(string.as_str())
-                    .map_err(|error| TemplateRenderError::JsonParseError(error.to_string()))
-            } else {
-                Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let string = require_string_value(value)?;
+            serde_json::from_str(string.as_str())
+                .map_err(|error| TemplateRenderError::JsonParseError(error.to_string()))
         }
         "abbreviate" => {
-            let n = arguments.get(0).ok_or_else(|| TemplateRenderError::RequiredArgumentMissing("drop".to_string()))?;
-            if let Value::Number(n_value) = n {
-                if let Value::String(string) = value {
-                    n_value.as_u64()
-                        .ok_or_else(|| TemplateRenderError::TypeError(type_of(&n)))
-                        .map(|n_value_int| {
-                            if string.len() <= n_value_int as usize {
-                                Value::String(string.clone())
-                            } else {
-                                Value::String(format!("{}…", string.as_str()[0..((n_value_int.max(1) as usize)-1)].to_string()))
-                            }
-                        })
-                } else {
-                    Err(TemplateRenderError::TypeError(type_of(&value)))
-                }
+            let n = require_argument(function, arguments, 0)?;
+            let string = require_string_value(value)?;
+            let n_value = require_u64_value(n)?;
+            if string.len() <= n_value as usize {
+                Ok(Value::String(string.clone()))
             } else {
-                Err(TemplateRenderError::TypeError(type_of(&n)))
+                Ok(Value::String(format!("{}…", string.as_str()[0..((n_value.max(1) as usize) - 1)].to_string())))
             }
         }
         "trimLeft" => {
-            if let Value::String(string) = value {
-                Ok(Value::String(string.trim_start().to_string()))
-            } else {
-                Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let string = require_string_value(value)?;
+            Ok(Value::String(string.trim_start().to_string()))
         }
         "trimRight" => {
-            if let Value::String(string) = value {
-                Ok(Value::String(string.trim_end().to_string()))
-            } else {
-                Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let string = require_string_value(value)?;
+            Ok(Value::String(string.trim_end().to_string()))
         }
         "trim" => {
-            if let Value::String(string) = value {
-                Ok(Value::String(string.trim().to_string()))
-            } else {
-                Err(TemplateRenderError::TypeError(type_of(&value)))
-            }
+            let string = require_string_value(value)?;
+            Ok(Value::String(string.trim().to_string()))
         }
         _ => Err(TemplateRenderError::UnknownFunctionError(function.to_string()))
     };
@@ -660,7 +576,7 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<(String, bool),
                             result = result.trim_end_matches(&[' ', '\t']).to_string();
                         }
                         result.push_str(evaluation.as_str())
-                    },
+                    }
                     _ => unreachable!(),
                 }
             }
@@ -760,10 +676,10 @@ fn evaluate_file(data: &Value, file: Pair<Rule>) -> Result<String, TemplateRende
                     result = result.trim_end_matches(&[' ', '\t']).to_string();
                 }
                 result.push_str(evaluation.as_str())
-            },
+            }
             Rule::character => {
                 result.push_str(record.as_str())
-            },
+            }
             Rule::EOI => (),
             _ => unreachable!(),
         }
@@ -794,7 +710,7 @@ fn main() {
     let utf8_configuration_path = configuration_path.to_str().unwrap_or("<path not representable in UTF-8>");
     let configuration_content = if utf8_configuration_path == "-" {
         eprintln!("Reading configuration from standard input stream");
-        let mut input =  Vec::new();
+        let mut input = Vec::new();
         let mut handle = std::io::stdin().lock();
         handle.read_to_end(&mut input)
             .unwrap_or_else(|error| {
