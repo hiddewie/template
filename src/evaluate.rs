@@ -293,6 +293,6 @@ pub fn evaluate_file(data: &Value, file: Pair<Rule>) -> Result<String, TemplateR
     return Ok(result);
 }
 
-pub fn parse_template<'i>(template_content: &'i String) -> Result<Pairs<'i, Rule>, pest::error::Error<Rule>> {
+pub fn parse_template(template_content: &String) -> Result<Pairs<Rule>, pest::error::Error<Rule>> {
     TemplateParser::parse(Rule::file, &template_content)
 }
