@@ -1,10 +1,7 @@
 ---
 name: Bug report
 about: Report a problem in the software
-title: ''
 labels: bug
-assignees: ''
-
 ---
 
 ## Description
