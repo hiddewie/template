@@ -15,16 +15,22 @@ assignees: ''
 
 ### Template
 
-<!-- Provide the template that shows the bug. -->
+The template that shows the bug:
+```
+
+```
 
 ### Configuration
 
-<!-- Provide the configuration file or input that shows the bug. -->
+The configuration that shows the bug:
+```yaml
+
+```
 
 ### Command line
 
 The command used to execute `template` is
-```
+```bash
 
 ```
 
@@ -48,4 +54,5 @@ Expected output:
 
 ## Additional context
 
-Add any other context about the problem here.
+<!-- Add any other context about the problem here. -->
+
