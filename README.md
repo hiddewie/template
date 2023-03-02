@@ -2,6 +2,8 @@
 
 CLI for templating based on JSON, YAML or HCL configuration.
 
+Inspired by [Consul Template](https://github.com/hashicorp/consul-template), [Sprig](https://github.com/Masterminds/sprig) [Handlebars](https://github.com/handlebars-lang/handlebars.js), [Mustache](https://mustache.github.io/), and the [Kotlin](https://kotlinlang.org/docs/home.html), [Rust](https://doc.rust-lang.org/std/) [Go](https://pkg.go.dev/std) and [Python](https://docs.python.org/3/library/) standard libraries.
+
 ## Installation
 
 ### Cargo
