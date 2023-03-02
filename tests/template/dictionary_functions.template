@@ -13,3 +13,5 @@ values: {% {} | values %}
 invert: {% {b: "d"} | invert %}
 toJson: {% {a:1, b:2, c:3} | toJson %}
 toJson: {% {} | toJson %}
+toPrettyJson: {% {a:1, b:2, c:3} | toPrettyJson %}
+toPrettyJson: {% {} | toPrettyJson %}

@@ -309,7 +309,14 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
             }
         }
         "toJson" => {
-            Ok(Value::String(format!("{value}")))
+            let result = serde_json::to_string(value)
+                .map_err(|_| TemplateRenderError::JsonSerializationError)?;
+            Ok(Value::String(result))
+        },
+        "toPrettyJson" => {
+            let result = serde_json::to_string_pretty(value)
+                .map_err(|_| TemplateRenderError::JsonSerializationError)?;
+            Ok(Value::String(result))
         }
         "fromJson" => {
             let string = require_string_value(value)?;

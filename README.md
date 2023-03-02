@@ -197,6 +197,7 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `toString`: transform the value to a string.
 - `empty`: whether the value is not "truthy", i.e. `null`, `0`, `0.0`, `-0.0`, `""`, `"  "`, `[]` or `{}`.
 - `toJson`: format a value to JSON.
+- `toPrettyJson`: format a value to JSON with indentation and newlines.
 
 #### String functions
 

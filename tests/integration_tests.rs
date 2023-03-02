@@ -753,6 +753,12 @@ values: []
 invert: {d:b}
 toJson: {"a":1,"b":2,"c":3}
 toJson: {}
+toPrettyJson: {
+  "a": 1,
+  "b": 2,
+  "c": 3
+}
+toPrettyJson: {}
 "#)
         .stderr(r#"Using template file 'tests/template/dictionary_functions.template'
 Using configuration file 'tests/configuration/empty.json'

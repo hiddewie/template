@@ -8,6 +8,7 @@ pub enum TemplateRenderError {
     RequiredArgumentMissing(String),
     InvalidRegexError(String),
     JsonParseError(String),
+    JsonSerializationError,
 }
 
 impl Display for TemplateRenderError {
@@ -19,6 +20,7 @@ impl Display for TemplateRenderError {
             TemplateRenderError::RequiredArgumentMissing(string) => f.write_str(format!("Required argument is missing for function {}", string.as_str()).as_str())?,
             TemplateRenderError::InvalidRegexError(regex) => f.write_str(format!("Invalid regular expression given: '{}'", regex.as_str()).as_str())?,
             TemplateRenderError::JsonParseError(json) => f.write_str(format!("Could not parse JSON: '{}'", json.as_str()).as_str())?,
+            TemplateRenderError::JsonSerializationError => f.write_str(format!("Could not serialize JSON").as_str())?,
         }
         return Ok(());
     }
