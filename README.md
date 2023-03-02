@@ -79,8 +79,8 @@ This software:
 ## Configuration
 
 - [JSON](https://www.json.org), extension `.json`, default parsing format
-- [HCL](https://github.com/hashicorp/hcl), extension `.hcl`
 - [YAML](https://yaml.org/spec/), extension `.yml` and `.yaml`
+- [HCL](https://github.com/hashicorp/hcl), extension `.hcl`
 
 If the configuration file has a different extension, or when the configuration is given in the standard input stream, you can configure the configuration format with the `--format` option.
 
@@ -109,6 +109,21 @@ renders output
 ```
 Hello world!
 ```
+
+The YAML configuration file
+```yaml
+value: Hello
+nested:
+  value: world
+```
+or the HCL configuration file
+```hcl
+value = "Hello"
+nested {
+  value = "world"
+}
+```
+will give equivalent output.
 
 ### Comments
 
