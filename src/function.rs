@@ -212,6 +212,11 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
             let split_strings = string.split(splitter_string).map(|split| Value::String(split.to_string())).collect();
             Ok(Value::Array(split_strings))
         }
+        "lines" => {
+            let string = require_string_value(value)?;
+            let lines: Vec<Value> = string.lines().map(|item| Value::String(item.to_string())).collect();
+            Ok(Value::Array(lines))
+        }
         "matches" => {
             let string = require_string_value(value)?;
             let regex = require_argument(function, arguments, 0)?;

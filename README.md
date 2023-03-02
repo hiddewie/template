@@ -212,6 +212,7 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `environment`: read an environment variable.
 - `reverse`: the string in reverse order.
 - `split(splitter)`: split the string for each occurrence of `splitter`.
+- `lines`: split the string into an array of lines.
 - `parseBoolean`: parses a boolean.
 - `parseInteger`: parses an integer.
 - `parseDecimal`: parses a decimal number.

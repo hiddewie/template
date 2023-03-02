@@ -583,6 +583,7 @@ capitalizeWords: String With Spaces
 environment: env_test
 reverse: gnirts
 split: [hello,world]
+lines: [,a,b,c,,x]
 matches: true
 matches: false
 substring: ello

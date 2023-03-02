@@ -12,6 +12,13 @@ capitalizeWords: {% with-spaces | capitalizeWords %}
 environment: {% "ENV_TEST" | environment %}
 reverse: {% "string" | reverse %}
 split: {% "hello world" | split(" ") %}
+lines: {% "
+a
+b
+c
+
+x
+" | lines %}
 matches: {% "hello world" | matches("[lo]{3} w") %}
 matches: {% "hello world" | matches("oll") %}
 substring: {% "hello world" | substring(1, 5) %}
