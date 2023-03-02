@@ -624,6 +624,9 @@ trimRight:
 replace: xx
 replace: ab
 replace:
+regexReplace: axxxb
+regexReplace: xxx xxx
+regexReplace: unmatching
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'

@@ -221,7 +221,7 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
             let string = require_string_value(value)?;
             let regex = require_argument(function, arguments, 0)?;
             let regex_string = require_string_value(regex)?;
-            let re = Regex::new(regex_string).map_err(|_err| TemplateRenderError::InvalidRegexError(string.to_string()))?;
+            let re = Regex::new(regex_string).map_err(|_err| TemplateRenderError::InvalidRegexError(regex_string.to_string()))?;
             Ok(Value::Bool(re.is_match(string.as_str())))
         }
         "substring" => {
@@ -352,6 +352,16 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
             let replacement = require_argument(function, arguments, 1)?;
             let replacement_string = require_string_value(replacement)?;
             Ok(Value::String(string.replace(search_string, replacement_string)))
+        }
+        "regexReplace" => {
+            let string = require_string_value(value)?;
+            let regex = require_argument(function, arguments, 0)?;
+            let regex_string = require_string_value(regex)?;
+            let parsed_regex = Regex::new(regex_string)
+                .map_err(|_| TemplateRenderError::InvalidRegexError(regex_string.to_string()))?;
+            let replacement = require_argument(function, arguments, 1)?;
+            let replacement_string = require_string_value(replacement)?;
+            Ok(Value::String(parsed_regex.replace_all(string.as_str(), replacement_string).to_string()))
         }
         "negate" => {
             Ok(Value::Bool(!to_boolean(value)))

@@ -59,3 +59,6 @@ trimRight:{% "   " | trimRight %}
 replace: {% "abab" | replace("ab", "x") %}
 replace: {% "abb" | replace("ab", "a") %}
 replace:{% "" | replace("ab", "a") %}
+regexReplace: {% "a0123b" | regexReplace("[0-9]+", "xxx") %}
+regexReplace: {% "abc def" | regexReplace("\w+", "xxx") %}
+regexReplace: {% "unmatching" | regexReplace("[0-9]+", "xxx") %}

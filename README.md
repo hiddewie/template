@@ -225,6 +225,7 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `abbreviate`: ensure the value is not longer than `n` characters. If it is longer, the value will be shortened until `n-1` characters, and suffixed with `…`.
 - `trimLeft`, `trimRight`, `trim`: trim the left, right or both sides of the string from whitespace.
 - `replace(search, replacement)`: replace the search string with the replacement.
+- `regexReplace(search, replacement)`: replace matches of the regular expression with the replacement.
 
 #### Array functions
 
