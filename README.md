@@ -196,8 +196,7 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `coalesce(value)`: default value if the argument is `null`.
 - `toString`: transform the value to a string.
 - `empty`: whether the value is not "truthy", i.e. `null`, `0`, `0.0`, `-0.0`, `""`, `"  "`, `[]` or `{}`.
-- `toJson`: format a value to JSON.
-- `toPrettyJson`: format a value to JSON with indentation and newlines.
+- `toJson`, `toPrettyJson`: format a value to JSON, either compact or multi-line indented.
 
 #### String functions
 
@@ -213,7 +212,7 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `environment`: read an environment variable.
 - `reverse`: the string in reverse order.
 - `split(splitter)`: split the string for each occurrence of `splitter`.
-- `lines`: split the string into an array of lines.
+- `lines`: split the string into an array of lines. Leading and trailing whitespace will be dropped.
 - `parseBoolean`: parses a boolean.
 - `parseInteger`: parses an integer.
 - `parseDecimal`: parses a decimal number.
@@ -225,6 +224,7 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `fromJson`: parse a value from JSON.
 - `abbreviate`: ensure the value is not longer than `n` characters. If it is longer, the value will be shortened until `n-1` characters, and suffixed with `…`.
 - `trimLeft`, `trimRight`, `trim`: trim the left, right or both sides of the string from whitespace.
+- `replace(search, replacement)`: replace the search string with the replacement.
 
 #### Array functions
 

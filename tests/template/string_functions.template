@@ -56,3 +56,6 @@ trimRight: {% "abdef" | trimRight %}
 trimRight:{% "" | trimRight %}
 trimRight: {% " x " | trimRight %}
 trimRight:{% "   " | trimRight %}
+replace: {% "abab" | replace("ab", "x") %}
+replace: {% "abb" | replace("ab", "a") %}
+replace:{% "" | replace("ab", "a") %}

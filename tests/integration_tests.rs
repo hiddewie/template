@@ -583,7 +583,7 @@ capitalizeWords: String With Spaces
 environment: env_test
 reverse: gnirts
 split: [hello,world]
-lines: [,a,b,c,,x]
+lines: [a,b,c,,x]
 matches: true
 matches: false
 substring: ello
@@ -621,6 +621,9 @@ trimRight: abdef
 trimRight:
 trimRight:  x
 trimRight:
+replace: xx
+replace: ab
+replace:
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'

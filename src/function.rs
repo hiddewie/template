@@ -214,7 +214,7 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
         }
         "lines" => {
             let string = require_string_value(value)?;
-            let lines: Vec<Value> = string.lines().map(|item| Value::String(item.to_string())).collect();
+            let lines: Vec<Value> = string.trim().lines().map(|item| Value::String(item.to_string())).collect();
             Ok(Value::Array(lines))
         }
         "matches" => {
@@ -344,6 +344,14 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
         "trim" => {
             let string = require_string_value(value)?;
             Ok(Value::String(string.trim().to_string()))
+        }
+        "replace" => {
+            let string = require_string_value(value)?;
+            let search = require_argument(function, arguments, 0)?;
+            let search_string = require_string_value(search)?;
+            let replacement = require_argument(function, arguments, 1)?;
+            let replacement_string = require_string_value(replacement)?;
+            Ok(Value::String(string.replace(search_string, replacement_string)))
         }
         "negate" => {
             Ok(Value::Bool(!to_boolean(value)))
