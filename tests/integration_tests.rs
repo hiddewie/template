@@ -711,6 +711,9 @@ first: 1
 first:
 last: 3
 last:
+index: 1
+index:
+index:
 contains: true
 contains: false
 empty: false

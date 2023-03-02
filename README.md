@@ -235,6 +235,7 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `drop(n)`: drops the first `n` items from the array.
 - `first`: the first item from the array, if it exists.
 - `last`: the last item from the array, if it exists.
+- `index(n)`: the *n*th item from the array, if it exists.
 - `contains(value)`: whether the array contains the value.
 - `unique`: remove all duplicates from the array.
 - `all`: true if all arguments are truthy, ∧.

@@ -11,6 +11,9 @@ first: {% [1,2,3] | first %}
 first:{% [] | first %}
 last: {% [1,2,3] | last %}
 last:{% [] | last %}
+index: {% [1,2,3] | index(0) %}
+index:{% [] | index(0) %}
+index:{% [1] | index(1) %}
 contains: {% ["a", "b", "c"] | contains("a") %}
 contains: {% [] | contains("a") %}
 empty: {% [1] | empty %}

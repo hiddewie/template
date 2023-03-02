@@ -1,3 +1,4 @@
+use std::ops::Index;
 use itertools::Itertools;
 use regex::Regex;
 use serde_json::{Map, Value};
@@ -263,6 +264,17 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
         "last" => {
             let array = require_array_value(value)?;
             Ok(array.last().unwrap_or(&Value::Null).clone())
+        }
+        "index" => {
+            let index = require_argument(function, arguments, 0)?;
+            let index_number = require_u64_value(index)?;
+            let array = require_array_value(value)?;
+            let result = if index_number < array.len() as u64 {
+                array.index(index_number as usize).clone()
+            } else {
+                Value::Null
+            };
+            Ok(result)
         }
         "contains" => {
             let needle = require_argument(function, arguments, 0)?;
