@@ -670,6 +670,8 @@ fn boolean_functions() {
         .stdout(r#"empty: true
 empty: false
 toJson: true
+negate: false
+negate: true
 "#)
         .stderr(r#"Using template file 'tests/template/boolean_functions.template'
 Using configuration file 'tests/configuration/empty.json'
@@ -708,6 +710,14 @@ empty: false
 empty: true
 unique: [1,2,3]
 empty: [1,2,{},[3],,-0.0,0.0]
+any: true
+any: false
+all: false
+all: false
+none: false
+none: false
+some: true
+some: false
 "#)
         .stderr(r#"Using template file 'tests/template/array_functions.template'
 Using configuration file 'tests/configuration/empty.json'

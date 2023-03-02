@@ -234,6 +234,10 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `last`: the last item from the array, if it exists.
 - `contains(value)`: whether the array contains the value.
 - `unique`: remove all duplicates from the array.
+- `all`: true if all arguments are truthy, ∧.
+- `any`: true if any arguments are truthy, ∨.
+- `none`: true if all of the arguments are falsy.
+- `some`: true if any of the arguments are falsy.
 
 #### Dictionary functions
 
@@ -243,6 +247,10 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `keys`: the keys of the dictionary.
 - `values`: the values of the dictionary.
 - `invert`: the values become the keys and the keys become the values. Values can only be strings. Duplicate values are not preserved.
+
+#### Boolean functions
+
+- `negate`: negation of the boolean, ¬.
 
 ## Development
 

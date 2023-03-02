@@ -333,6 +333,25 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
             let string = require_string_value(value)?;
             Ok(Value::String(string.trim().to_string()))
         }
+        "negate" => {
+            Ok(Value::Bool(!to_boolean(value)))
+        }
+        "all" => {
+            let result = require_array_value(value)?;
+            Ok(Value::Bool(result.into_iter().all(|item| to_boolean(item))))
+        }
+        "any" => {
+            let result = require_array_value(value)?;
+            Ok(Value::Bool(result.into_iter().any(|item| to_boolean(item))))
+        }
+        "none" => {
+            let result = require_array_value(value)?;
+            Ok(Value::Bool(result.into_iter().all(|item| !to_boolean(item))))
+        }
+        "some" => {
+            let result = require_array_value(value)?;
+            Ok(Value::Bool(result.into_iter().any(|item| !to_boolean(item))))
+        }
         _ => Err(TemplateRenderError::UnknownFunctionError(function.to_string()))
     };
 }
