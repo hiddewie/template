@@ -242,6 +242,7 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `any`: true if any arguments are truthy, ∨.
 - `none`: true if all of the arguments are falsy.
 - `some`: true if any of the arguments are falsy.
+- `chunked(items, overlap)`: chunks the array into an array of arrays, each subarray at most `items` items, with `overlap` overlapping items with the previous chunk.
 
 #### Dictionary functions
 

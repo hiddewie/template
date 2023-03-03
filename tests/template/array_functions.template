@@ -28,3 +28,6 @@ none: {% [true, false] | none %}
 none: {% [] | any %}
 some: {% [true, false] | some %}
 some: {% [] | any %}
+chunked: {% [] | chunked(1, 0) %}
+chunked: {% [1,2,3] | chunked(2, 0) %}
+chunked: {% [1,2,3] | chunked(2, 1) %}

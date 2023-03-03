@@ -1,4 +1,5 @@
 use std::ops::Index;
+
 use itertools::Itertools;
 use regex::Regex;
 use serde_json::{Map, Value};
@@ -324,7 +325,7 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
             let result = serde_json::to_string(value)
                 .map_err(|_| TemplateRenderError::JsonSerializationError)?;
             Ok(Value::String(result))
-        },
+        }
         "toPrettyJson" => {
             let result = serde_json::to_string_pretty(value)
                 .map_err(|_| TemplateRenderError::JsonSerializationError)?;
@@ -393,6 +394,28 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
         "some" => {
             let result = require_array_value(value)?;
             Ok(Value::Bool(result.into_iter().any(|item| !to_boolean(item))))
+        }
+        "chunked" => {
+            let array = require_array_value(value)?;
+            let chunk_size = require_argument(function, arguments, 0)?;
+            let chunk_size_number = require_u64_value(chunk_size)? as usize;
+            let overlap = require_argument(function, arguments, 1)?;
+            let overlap_number = require_u64_value(overlap)? as usize;
+
+            if overlap_number >= chunk_size_number {
+                Err(TemplateRenderError::ArgumentValueError(format!("The overlap ({overlap_number}) cannot be equal or larger than the chunk size ({chunk_size_number})")))
+            } else {
+                let mut result: Vec<Value> = vec![];
+
+                for i in (0..(array.len())).step_by(chunk_size_number-overlap_number) {
+                    // step 3, overlap 1
+                    // 0 to 3
+                    // 0+3-1 to 0+3-1+3
+                    result.push(Value::Array(array[i..(i +  chunk_size_number-overlap_number).min(array.len())].to_vec()))
+                }
+                Ok(Value::Array(result))
+
+            }
         }
         _ => Err(TemplateRenderError::UnknownFunctionError(function.to_string()))
     };

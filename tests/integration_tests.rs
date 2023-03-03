@@ -728,6 +728,9 @@ none: false
 none: false
 some: true
 some: false
+chunked: []
+chunked: [[1,2],[3]]
+chunked: [[1],[2],[3]]
 "#)
         .stderr(r#"Using template file 'tests/template/array_functions.template'
 Using configuration file 'tests/configuration/empty.json'
@@ -878,5 +881,26 @@ fn unknown_function_call() {
 Using configuration file 'tests/configuration/empty.json'
 Parsing configuration using JSON format
 ERROR: Could not render template: Unknown function 'doesNotExist'
+"#);
+}
+
+
+#[test]
+fn invalid_chunked_arguments() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("--template")
+        .arg("tests/template/invalid_chunked_arguments.template")
+        .arg("--configuration")
+        .arg("tests/configuration/empty.json")
+        .assert();
+
+    assert
+        .code(6)
+        .stdout("")
+        .stderr(r#"Using template file 'tests/template/invalid_chunked_arguments.template'
+Using configuration file 'tests/configuration/empty.json'
+Parsing configuration using JSON format
+ERROR: Could not render template: Invalid arguments: The overlap (6) cannot be equal or larger than the chunk size (3)
 "#);
 }
