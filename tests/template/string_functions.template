@@ -21,6 +21,9 @@ x
 " | lines %}
 matches: {% "hello world" | matches("[lo]{3} w") %}
 matches: {% "hello world" | matches("oll") %}
+contains: {% "hello world" | contains("hello") %}
+contains: {% "hello world" | contains("o w") %}
+contains: {% "hello world" | contains("qqq") %}
 substring: {% "hello world" | substring(1, 5) %}
 substring: {% "hello world" | substring(1) %}
 substring: {% "hello world" | substring(0, 1) %}

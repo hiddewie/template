@@ -225,7 +225,8 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `trimLeft`, `trimRight`, `trim`: trim the left, right or both sides of the string from whitespace.
 - `matches(regex)`: checks if the string matches a regular expression.
 - `replace(search, replacement)`: replace the search string with the replacement.
-  - `regexReplace(search, replacement)`: replace matches of the regular expression with the replacement. The replacement may contain `$0` (entire match), `$1`, `$2`, etc. for matched groups, and `$name` for matched named groups. 
+- `regexReplace(search, replacement)`: replace matches of the regular expression with the replacement. The replacement may contain `$0` (entire match), `$1`, `$2`, etc. for matched groups, and `$name` for matched named groups. 
+- `contains(substring)`: whether the string contains the substring. 
 
 #### Array functions
 

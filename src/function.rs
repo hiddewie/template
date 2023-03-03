@@ -279,8 +279,14 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
         }
         "contains" => {
             let needle = require_argument(function, arguments, 0)?;
-            let array = require_array_value(value)?;
-            Ok(Value::Bool(array.contains(needle)))
+            match value {
+                Value::String(substring) => {
+                    let needle_string = require_string_value(needle)?;
+                    Ok(Value::Bool(substring.contains(needle_string)))
+                },
+                Value::Array(array) => Ok(Value::Bool(array.contains(needle))),
+                _ => Err(TemplateRenderError::TypeError(type_of(&needle))),
+            }
         }
         "containsKey" => {
             let key = require_argument(function, arguments, 0)?;

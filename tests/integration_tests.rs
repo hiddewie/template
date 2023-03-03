@@ -586,6 +586,9 @@ split: [hello,world]
 lines: [a,b,c,,x]
 matches: true
 matches: false
+contains: true
+contains: true
+contains: false
 substring: ello
 substring: ello world
 substring: h
