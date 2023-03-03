@@ -227,6 +227,7 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `replace(search, replacement)`: replace the search string with the replacement.
 - `regexReplace(search, replacement)`: replace matches of the regular expression with the replacement. The replacement may contain `$0` (entire match), `$1`, `$2`, etc. for matched groups, and `$name` for matched named groups. 
 - `contains(substring)`: whether the string contains the substring. 
+- `startsWith(start)`, `endsWith(end)`: whether the string starts or ends with the given value. 
 
 #### Array functions
 

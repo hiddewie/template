@@ -630,6 +630,10 @@ replace:
 regexReplace: axxxb
 regexReplace: xxx xxx
 regexReplace: unmatching
+startsWith: true
+startsWith: false
+endsWith: true
+endsWith: false
 "#)
         .stderr(r#"Using template file 'tests/template/string_functions.template'
 Using configuration file 'tests/configuration/string_functions.json'

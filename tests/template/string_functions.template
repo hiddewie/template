@@ -65,3 +65,7 @@ replace:{% "" | replace("ab", "a") %}
 regexReplace: {% "a0123b" | regexReplace("[0-9]+", "xxx") %}
 regexReplace: {% "abc def" | regexReplace("\w+", "xxx") %}
 regexReplace: {% "unmatching" | regexReplace("[0-9]+", "xxx") %}
+startsWith: {% "aaabbb" | startsWith("aaa") %}
+startsWith: {% "aaabbb" | startsWith("xxx") %}
+endsWith: {% "aaabbb" | endsWith("bbb") %}
+endsWith: {% "aaabbb" | endsWith("xxx") %}

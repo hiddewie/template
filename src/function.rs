@@ -299,6 +299,18 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
             let object = require_object_value(value)?;
             Ok(Value::Bool(object.values().any(|val| val == needle)))
         }
+        "startsWith" => {
+            let string = require_string_value(value)?;
+            let start = require_argument(function, arguments, 0)?;
+            let start_string = require_string_value(start)?;
+            Ok(Value::Bool(string.starts_with(start_string)))
+        }
+        "endsWith" => {
+            let string = require_string_value(value)?;
+            let end = require_argument(function, arguments, 0)?;
+            let end_string = require_string_value(end)?;
+            Ok(Value::Bool(string.ends_with(end_string)))
+        }
         "empty" => {
             Ok(Value::Bool(!to_boolean(value)))
         }
