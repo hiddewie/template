@@ -1,0 +1,4 @@
+parseFormatDateTime: {% "now" | parseFormatDateTime(null, "%Y-%m-%d %H:%M:%S") %}
+parseFormatDateTime: {% "now" | parseFormatDateTime(null, "%s") %}
+parseFormatDateTime: {% "now" | parseFormatDateTime(null, "%Y-%m-%d %H:%M:%S") %}
+parseFormatDateTime: {% "2001-07-08T00:34:60.026490+09:30" | parseFormatDateTime("%+", "%A %e %B %Y, %T") %}

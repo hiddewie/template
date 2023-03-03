@@ -1,4 +1,5 @@
 use std::ops::Index;
+use chrono::{DateTime, Local};
 
 use itertools::Itertools;
 use regex::Regex;
@@ -434,6 +435,24 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
                 Ok(Value::Array(result))
 
             }
+        }
+        "parseFormatDateTime" => {
+            let string = require_string_value(value)?;
+
+            let parse_result = if string == "now" {
+                // First argument is ignored
+                DateTime::from(Local::now())
+            } else {
+                let parse_format = require_argument(function, arguments, 0)?;
+                let parse_format_string= require_string_value(parse_format)?;
+                DateTime::parse_from_str(string, parse_format_string)
+                    .map_err(|err| TemplateRenderError::ArgumentValueError(format!("Could not parse date-time with value '{string}' and parse format string '{parse_format_string}': {err}")))?
+            };
+
+            let format = require_argument(function, arguments, 1)?;
+            let format_string = require_string_value(format)?;
+            let formatted = parse_result.format(format_string).to_string();
+            Ok(Value::String(formatted))
         }
         _ => Err(TemplateRenderError::UnknownFunctionError(function.to_string()))
     };

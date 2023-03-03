@@ -259,6 +259,10 @@ Some functions take one or more arguments, which can be passed by using parenthe
 
 - `negate`: negation of the boolean, ¬.
 
+#### Date/Time functions
+
+- `parseFormatDateTime(parse, format)`: parse the date/time, and format it to the given format. If the input is the string `now`, it will be parsed to the current instant. Otherwise, the parsing and formatting follows the [strftime](https://docs.rs/chrono/latest/chrono/format/strftime/index.html#specifiers) specifiers.
+
 ## Development
 
 ### Build

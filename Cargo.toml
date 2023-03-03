@@ -18,9 +18,11 @@ pest_derive = "2.0"
 regex = "1"
 hcl-rs = "0.10"
 itertools = "0.10"
+chrono = "0.4"
 
 [dev-dependencies]
 assert_cmd = "2.0"
+predicates = "2.1"
 
 [[bin]]
 name = "template"

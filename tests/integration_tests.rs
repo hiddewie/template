@@ -1,4 +1,5 @@
 use assert_cmd::Command;
+use predicates::prelude::*;
 
 #[test]
 fn no_arguments() {
@@ -891,7 +892,6 @@ ERROR: Could not render template: Unknown function 'doesNotExist'
 "#);
 }
 
-
 #[test]
 fn invalid_chunked_arguments() {
     let mut cmd = Command::cargo_bin("template").unwrap();
@@ -909,5 +909,28 @@ fn invalid_chunked_arguments() {
 Using configuration file 'tests/configuration/empty.json'
 Parsing configuration using JSON format
 ERROR: Could not render template: Invalid arguments: The overlap (6) cannot be equal or larger than the chunk size (3)
+"#);
+}
+
+#[test]
+fn test_date_time_functions() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("--template")
+        .arg("tests/template/date_time_functions.template")
+        .arg("--configuration")
+        .arg("tests/configuration/empty.json")
+        .assert();
+
+    assert
+        .success()
+        .stdout(predicate::str::is_match(r#"parseFormatDateTime: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}
+parseFormatDateTime: \d+
+parseFormatDateTime: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}
+parseFormatDateTime: Sunday  8 July 2001, 00:34:60
+$"#).unwrap())
+        .stderr(r#"Using template file 'tests/template/date_time_functions.template'
+Using configuration file 'tests/configuration/empty.json'
+Parsing configuration using JSON format
 "#);
 }
