@@ -217,15 +217,15 @@ Some functions take one or more arguments, which can be passed by using parenthe
 - `parseInteger`: parses an integer.
 - `parseDecimal`: parses a decimal number.
 - `parseNumber`: parses an integer or decimal number.
-- `matches(regex)`: checks if the string matches a regular expression.
 - `substring(from)`, `substring(from, to)`: creates a substring from the string. `from` is inclusive, `to` is exclusive.
 - `take(n)`: takes the first `n` characters from the string.
 - `drop(n)`: drops the first `n` characters from the string.
 - `fromJson`: parse a value from JSON.
 - `abbreviate`: ensure the value is not longer than `n` characters. If it is longer, the value will be shortened until `n-1` characters, and suffixed with `…`.
 - `trimLeft`, `trimRight`, `trim`: trim the left, right or both sides of the string from whitespace.
+- `matches(regex)`: checks if the string matches a regular expression.
 - `replace(search, replacement)`: replace the search string with the replacement.
-- `regexReplace(search, replacement)`: replace matches of the regular expression with the replacement.
+  - `regexReplace(search, replacement)`: replace matches of the regular expression with the replacement. The replacement may contain `$0` (entire match), `$1`, `$2`, etc. for matched groups, and `$name` for matched named groups. 
 
 #### Array functions
 
