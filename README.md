@@ -47,7 +47,7 @@ Options:
   -V, --version                        Print version information
 ```
 
-The output is rendered to the standard output stream. Log messages are output to the standard error stream.
+The output is rendered to the standard output stream. Log messages are output to the standard error stream. The log level can be controlled using the [`RUST_LOG` environment variable](https://docs.rs/env_logger/0.10.0/env_logger/#example).
 
 This tool combines well with other command-line utilities, following the UNIX philosophy, for example:
 ```shell
@@ -74,7 +74,7 @@ curl -s 'https://dummyjson.com/products' \
 This software:
 - reads the configuration file or standard input
 - reads the template file
-- reads the environment, if the `environment` function is used
+- reads the environment to set the log level, and if the `environment` function is used
 - does not write any files
 - does not make any network connections
 

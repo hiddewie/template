@@ -19,6 +19,8 @@ regex = "1"
 hcl-rs = "0.10"
 itertools = "0.10"
 chrono = "0.4"
+log = "0.4"
+env_logger = "0.10"
 
 [dev-dependencies]
 assert_cmd = "2.0"

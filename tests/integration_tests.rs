@@ -1,4 +1,5 @@
 use assert_cmd::Command;
+use predicate::str::is_match;
 use predicates::prelude::*;
 
 #[test]
@@ -113,9 +114,9 @@ fn template_does_not_exist() {
         .failure()
         .code(1)
         .stdout("")
-        .stderr(r#"Using template file 'tests/template/does_not_exist.template'
-ERROR: Could not read template file 'tests/template/does_not_exist.template': No such file or directory (os error 2)
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/does_not_exist.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z ERROR template\] ERROR: Could not read template file 'tests/template/does_not_exist.template': No such file or directory \(os error 2\)
+$"#).unwrap());
 }
 
 #[test]
@@ -132,10 +133,28 @@ fn configuration_does_not_exist() {
         .failure()
         .code(3)
         .stdout("")
-        .stderr(r#"Using template file 'tests/template/empty.template'
-Using configuration file 'tests/configuration/does_not_exist.json'
-ERROR: Could not read configuration file 'tests/configuration/does_not_exist.json': No such file or directory (os error 2)
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/empty.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/does_not_exist.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z ERROR template\] ERROR: Could not read configuration file 'tests/configuration/does_not_exist.json': No such file or directory \(os error 2\)
+$"#).unwrap());
+}
+
+#[test]
+fn test_error_log_level() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("--template")
+        .arg("tests/template/empty.template")
+        .arg("--configuration")
+        .arg("tests/configuration/does_not_exist.json")
+        .env("RUST_LOG", "error")
+        .assert();
+
+    assert
+        .code(3)
+        .stdout("")
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z ERROR template\] ERROR: Could not read configuration file 'tests/configuration/does_not_exist.json': No such file or directory \(os error 2\)
+$"#).unwrap());
 }
 
 #[test]
@@ -152,11 +171,11 @@ fn invalid_configuration_json() {
         .failure()
         .code(4)
         .stdout("")
-        .stderr(r#"Using template file 'tests/template/empty.template'
-Using configuration file 'tests/configuration/invalid.json'
-Parsing configuration using JSON format
-ERROR: Could not parse JSON configuration (syntax error): key must be a string at line 1 column 2
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/empty.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/invalid.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z ERROR template\] ERROR: Could not parse JSON configuration \(syntax error\): key must be a string at line 1 column 2
+$"#).unwrap());
 }
 
 #[test]
@@ -173,17 +192,17 @@ fn invalid_configuration_hcl() {
         .failure()
         .code(4)
         .stdout("")
-        .stderr(r#"Using template file 'tests/template/empty.template'
-Using configuration file 'tests/configuration/invalid.hcl'
-Parsing configuration using HCL format
-ERROR: Could not parse HCL configuration:
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/empty.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/invalid.hcl'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using HCL format
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z ERROR template\] ERROR: Could not parse HCL configuration:
  --> 2:2
   |
 2 |  "   ]
   |  ^---
   |
   = expected Identifier in line 2, col 2
-"#);
+$"#).unwrap());
 }
 
 #[test]
@@ -200,11 +219,11 @@ fn invalid_configuration_yaml() {
         .failure()
         .code(4)
         .stdout("")
-        .stderr(r#"Using template file 'tests/template/empty.template'
-Using configuration file 'tests/configuration/invalid.yaml'
-Parsing configuration using YAML format
-ERROR: Could not parse YAML configuration: found unexpected end of stream at line 3 column 1, while scanning a quoted scalar at line 2 column 2
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/empty.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/invalid.yaml'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using YAML format
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z ERROR template\] ERROR: Could not parse YAML configuration: found unexpected end of stream at line 3 column 1, while scanning a quoted scalar at line 2 column 2
+$"#).unwrap());
 }
 
 #[test]
@@ -221,17 +240,17 @@ fn invalid_template() {
         .failure()
         .code(5)
         .stdout("")
-        .stderr(r#"Using template file 'tests/template/invalid.template'
-Using configuration file 'tests/configuration/empty.json'
-Parsing configuration using JSON format
-ERROR: Could not parse template
- --> 1:3
-  |
-1 | {%
-  |   ^---
-  |
-  = expected keyword_if, keyword_unless, or expression
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/invalid.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/empty.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z ERROR template\] ERROR: Could not parse template
+     --> 1:3
+      |
+    1 | \{%
+      |   ^---
+      |
+      = expected keyword_if, keyword_unless, or expression
+$"#).unwrap());
 }
 
 #[test]
@@ -247,10 +266,10 @@ fn empty_template() {
     assert
         .success()
         .stdout("")
-        .stderr(r#"Using template file 'tests/template/empty.template'
-Using configuration file 'tests/configuration/empty.json'
-Parsing configuration using JSON format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/empty.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/empty.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+$"#).unwrap());
 }
 
 #[test]
@@ -266,10 +285,10 @@ fn hello_world_json() {
     assert
         .success()
         .stdout("Hello world!")
-        .stderr(r#"Using template file 'tests/template/hello_world.template'
-Using configuration file 'tests/configuration/hello_world.json'
-Parsing configuration using JSON format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/hello_world.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/hello_world.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+$"#).unwrap());
 }
 
 #[test]
@@ -285,10 +304,10 @@ fn hello_world_hcl() {
     assert
         .success()
         .stdout("Hello world!")
-        .stderr(r#"Using template file 'tests/template/hello_world.template'
-Using configuration file 'tests/configuration/hello_world.hcl'
-Parsing configuration using HCL format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/hello_world.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/hello_world.hcl'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using HCL format
+$"#).unwrap());
 }
 
 #[test]
@@ -304,10 +323,10 @@ fn hello_world_yaml() {
     assert
         .success()
         .stdout("Hello world!")
-        .stderr(r#"Using template file 'tests/template/hello_world.template'
-Using configuration file 'tests/configuration/hello_world.yaml'
-Parsing configuration using YAML format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/hello_world.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/hello_world.yaml'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using YAML format
+$"#).unwrap());
 }
 
 #[test]
@@ -323,10 +342,10 @@ fn hello_world_yml() {
     assert
         .success()
         .stdout("Hello world!")
-        .stderr(r#"Using template file 'tests/template/hello_world.template'
-Using configuration file 'tests/configuration/hello_world.yml'
-Parsing configuration using YAML format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/hello_world.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/hello_world.yml'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using YAML format
+$"#).unwrap());
 }
 
 #[test]
@@ -345,10 +364,10 @@ fn read_configuration_from_stdin() {
     assert
         .success()
         .stdout("Hello world!")
-        .stderr(r#"Using template file 'tests/template/hello_world.template'
-Reading configuration from standard input stream
-Parsing configuration using YAML format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/hello_world.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Reading configuration from standard input stream
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using YAML format
+$"#).unwrap());
 }
 
 #[test]
@@ -366,10 +385,10 @@ fn hcl_with_format_and_unknown_extension() {
     assert
         .success()
         .stdout("Hello world!")
-        .stderr(r#"Using template file 'tests/template/hello_world.template'
-Using configuration file 'tests/configuration/hello_world.unknown'
-Parsing configuration using HCL format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/hello_world.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/hello_world.unknown'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using HCL format
+$"#).unwrap());
 }
 
 #[test]
@@ -392,10 +411,10 @@ line4
 
 done
 "#)
-        .stderr(r#"Using template file 'tests/template/no_variables.template'
-Using configuration file 'tests/configuration/empty.json'
-Parsing configuration using JSON format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/no_variables.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/empty.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+$"#).unwrap());
 }
 
 #[test]
@@ -420,10 +439,10 @@ false
 [1,2,3]
 end
 "#)
-        .stderr(r#"Using template file 'tests/template/variables.template'
-Using configuration file 'tests/configuration/variables.json'
-Parsing configuration using JSON format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/variables.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/variables.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+$"#).unwrap());
 }
 
 #[test]
@@ -441,10 +460,10 @@ fn missing_configuration_value() {
         .stdout(r#"!!
 !!
 "#)
-        .stderr(r#"Using template file 'tests/template/a.template'
-Using configuration file 'tests/configuration/empty.json'
-Parsing configuration using JSON format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/a.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/empty.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+$"#).unwrap());
 }
 
 #[test]
@@ -476,10 +495,10 @@ else
 
     indented content
 "#)
-        .stderr(r#"Using template file 'tests/template/if_else.template'
-Using configuration file 'tests/configuration/if_else.json'
-Parsing configuration using JSON format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/if_else.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/if_else.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+$"#).unwrap());
 }
 
 #[test]
@@ -509,10 +528,10 @@ loop end
 
 
 "#)
-        .stderr(r#"Using template file 'tests/template/iteration.template'
-Using configuration file 'tests/configuration/iteration.json'
-Parsing configuration using JSON format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/iteration.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/iteration.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+$"#).unwrap());
 }
 
 #[test]
@@ -530,10 +549,10 @@ fn comments() {
         .stdout(r#"
 false
 "#)
-        .stderr(r#"Using template file 'tests/template/comments.template'
-Using configuration file 'tests/configuration/empty.json'
-Parsing configuration using JSON format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/comments.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/empty.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+$"#).unwrap());
 }
 
 #[test]
@@ -550,11 +569,11 @@ fn function_error() {
         .failure()
         .code(6)
         .stdout("")
-        .stderr(r#"Using template file 'tests/template/function_error.template'
-Using configuration file 'tests/configuration/function_error.json'
-Parsing configuration using JSON format
-ERROR: Could not render template: Invalid type '&serde_json::value::Value'
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/function_error.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/function_error.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z ERROR template\] ERROR: Could not render template: Invalid type '&serde_json::value::Value'
+$"#).unwrap());
 }
 
 #[test]
@@ -636,10 +655,10 @@ startsWith: false
 endsWith: true
 endsWith: false
 "#)
-        .stderr(r#"Using template file 'tests/template/string_functions.template'
-Using configuration file 'tests/configuration/string_functions.json'
-Parsing configuration using JSON format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/string_functions.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/string_functions.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+$"#).unwrap());
 }
 
 #[test]
@@ -664,10 +683,10 @@ empty: false
 toJson: 1
 toJson: -0.0
 "#)
-        .stderr(r#"Using template file 'tests/template/number_functions.template'
-Using configuration file 'tests/configuration/empty.json'
-Parsing configuration using JSON format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/number_functions.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/empty.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+$"#).unwrap());
 }
 
 #[test]
@@ -688,10 +707,10 @@ toJson: true
 negate: false
 negate: true
 "#)
-        .stderr(r#"Using template file 'tests/template/boolean_functions.template'
-Using configuration file 'tests/configuration/empty.json'
-Parsing configuration using JSON format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/boolean_functions.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/empty.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+$"#).unwrap());
 }
 
 #[test]
@@ -740,10 +759,10 @@ chunked: []
 chunked: [[1,2],[3]]
 chunked: [[1],[2],[3]]
 "#)
-        .stderr(r#"Using template file 'tests/template/array_functions.template'
-Using configuration file 'tests/configuration/empty.json'
-Parsing configuration using JSON format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/array_functions.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/empty.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+$"#).unwrap());
 }
 
 #[test]
@@ -780,10 +799,10 @@ toPrettyJson: {
 }
 toPrettyJson: {}
 "#)
-        .stderr(r#"Using template file 'tests/template/dictionary_functions.template'
-Using configuration file 'tests/configuration/empty.json'
-Parsing configuration using JSON format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/dictionary_functions.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/empty.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+$"#).unwrap());
 }
 
 #[test]
@@ -829,10 +848,10 @@ dictionary: {}
 dictionary: {a:}
 dictionary: {" spaceee ":space!,a:b,c:1,d:,e:0.1,integer:1,string:string}
 "#)
-        .stderr(r#"Using template file 'tests/template/literals.template'
-Using configuration file 'tests/configuration/literals.json'
-Parsing configuration using JSON format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/literals.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/literals.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+$"#).unwrap());
 }
 
 #[test]
@@ -866,10 +885,10 @@ default
 coalesce: x
 coalesce: something
 "#)
-        .stderr(r#"Using template file 'tests/template/default.template'
-Using configuration file 'tests/configuration/empty.json'
-Parsing configuration using JSON format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/default.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/empty.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+$"#).unwrap());
 }
 
 #[test]
@@ -885,11 +904,11 @@ fn unknown_function_call() {
     assert
         .code(6)
         .stdout("")
-        .stderr(r#"Using template file 'tests/template/unknown_function.template'
-Using configuration file 'tests/configuration/empty.json'
-Parsing configuration using JSON format
-ERROR: Could not render template: Unknown function 'doesNotExist'
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/unknown_function.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/empty.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z ERROR template\] ERROR: Could not render template: Unknown function 'doesNotExist'
+$"#).unwrap());
 }
 
 #[test]
@@ -905,11 +924,11 @@ fn invalid_chunked_arguments() {
     assert
         .code(6)
         .stdout("")
-        .stderr(r#"Using template file 'tests/template/invalid_chunked_arguments.template'
-Using configuration file 'tests/configuration/empty.json'
-Parsing configuration using JSON format
-ERROR: Could not render template: Invalid arguments: The overlap (6) cannot be equal or larger than the chunk size (3)
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/invalid_chunked_arguments.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/empty.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z ERROR template\] ERROR: Could not render template: Invalid arguments: The overlap \(6\) cannot be equal or larger than the chunk size \(3\)
+$"#).unwrap());
 }
 
 #[test]
@@ -924,13 +943,13 @@ fn test_date_time_functions() {
 
     assert
         .success()
-        .stdout(predicate::str::is_match(r#"parseFormatDateTime: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}
+        .stdout(is_match(r#"^parseFormatDateTime: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}
 parseFormatDateTime: \d+
 parseFormatDateTime: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}
 parseFormatDateTime: Sunday  8 July 2001, 00:34:60
 $"#).unwrap())
-        .stderr(r#"Using template file 'tests/template/date_time_functions.template'
-Using configuration file 'tests/configuration/empty.json'
-Parsing configuration using JSON format
-"#);
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/date_time_functions.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/empty.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+$"#).unwrap());
 }
