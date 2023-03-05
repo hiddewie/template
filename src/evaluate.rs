@@ -1,12 +1,12 @@
-
 use std::cell::RefCell;
 use std::rc::Rc;
+
 use pest::iterators::{Pair, Pairs};
+use pest::Parser;
 use serde_json::{Map, Value};
+
 use crate::error::TemplateRenderError;
 use crate::function;
-
-use pest::Parser;
 
 #[derive(Parser)]
 #[grammar = "grammar/template.pest"]
@@ -256,6 +256,43 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<(String, bool),
             iterables_results.iter().for_each(|iterable_result|
                 result.push_str(iterable_result.take().as_str())
             )
+        }
+        Rule::with_template => {
+            let mut name: &str = "";
+            let mut value: Value = Value::Null;
+
+            for for_inner in expression.into_inner() {
+                match for_inner.as_rule() {
+                    Rule::property => {
+                        name = for_inner.as_str();
+                    }
+                    Rule::expression => {
+                        value = parse_expression(&data, &mut for_inner.into_inner())?;
+                    }
+                    Rule::end_template => {
+                        result = result.trim_end_matches(&[' ', '\t']).to_string();
+                    }
+                    Rule::character => {
+                        result.push_str(for_inner.as_str())
+                    }
+                    Rule::template => {
+                        let context_value = match data {
+                            Value::Object(map) => {
+                                let mut q = map.clone();
+                                q.insert(name.to_string(), value.clone());
+                                Value::Object(q)
+                            }
+                            _ => value.clone(),
+                        };
+                        let (template_result, gobble_inner) = evaluate_template(&context_value, for_inner.clone())?;
+                        result.push_str(template_result.as_str());
+                        if gobble_inner {
+                            result = result.trim_end_matches(&[' ', '\t']).to_string();
+                        }
+                    }
+                    _ => unreachable!(),
+                }
+            }
         }
         Rule::expression_template => {
             let mut inner_rules = expression.into_inner();

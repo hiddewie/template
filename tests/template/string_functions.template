@@ -3,12 +3,12 @@ upperCase: {% string | upperCase %}
 lowerCase: {% upper | lowerCase %}
 length: {% empty | length %}
 length: {% string | length %}
-kebabCase: {% with-spaces | kebabCase %}
-camelCase: {% with-spaces | camelCase %}
-snakeCase: {% with-spaces | snakeCase %}
-pascalCase: {% with-spaces | pascalCase %}
-capitalize: {% with-spaces | capitalize %}
-capitalizeWords: {% with-spaces | capitalizeWords %}
+kebabCase: {% spaces | kebabCase %}
+camelCase: {% spaces | camelCase %}
+snakeCase: {% spaces | snakeCase %}
+pascalCase: {% spaces | pascalCase %}
+capitalize: {% spaces | capitalize %}
+capitalizeWords: {% spaces | capitalizeWords %}
 environment: {% "ENV_TEST" | environment %}
 reverse: {% "string" | reverse %}
 split: {% "hello world" | split(" ") %}
