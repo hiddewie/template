@@ -1,0 +1,6 @@
+Template content...
+{% debug a %}
+{% debug object %}
+{% debug null %}
+{% debug "" | startsWith("abc") %}
+... more content

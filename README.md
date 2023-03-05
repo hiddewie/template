@@ -272,6 +272,20 @@ Some functions take one or more arguments, which can be passed by using parenthe
 
 - `parseFormatDateTime(parse, format)`: parse the date/time, and format it to the given format. If the input is the string `now`, it will be parsed to the current instant. Otherwise, the parsing and formatting follows the [strftime](https://docs.rs/chrono/latest/chrono/format/strftime/index.html#specifiers) specifiers.
 
+### Debugging
+
+The `debug` statement can be used to log an expression and it's evaluated result without outputting the content into the templated output:
+```
+Template content...
+{% debug some_value %}
+... more template content
+```
+
+Logged output:
+```
+[2023-03-05T11:18:56Z INFO  template_cli::evaluate] Debug expression: some_value = {"b":"c"}
+```
+
 ## Development
 
 ### Build

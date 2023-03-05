@@ -8,6 +8,8 @@ use serde_json::{Map, Value};
 use crate::error::TemplateRenderError;
 use crate::function;
 
+use log::info;
+
 #[derive(Parser)]
 #[grammar = "grammar/template.pest"]
 pub struct TemplateParser;
@@ -293,6 +295,11 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<(String, bool),
                     _ => unreachable!(),
                 }
             }
+        }
+        Rule::debug_template => {
+            let debug_expression = expression.into_inner().next().unwrap();
+            let debug_evaluated = parse_expression(&data, &mut debug_expression.clone().into_inner())?;
+            info!("{}", format!("Debug expression: {} = {}", debug_expression.as_str().trim(), debug_evaluated))
         }
         Rule::expression_template => {
             let mut inner_rules = expression.into_inner();

@@ -13,6 +13,7 @@ keyword_else = _{ "else" }
 keyword_end = _{ "end" }
 keyword_for = _{ "for" }
 keyword_with = _{ "with" }
+keyword_debug = _{ "debug" }
 keywords = _{
     keyword_if |
     keyword_unless |
@@ -20,7 +21,8 @@ keywords = _{
     keyword_else |
     keyword_end |
     keyword_for |
-    keyword_with
+    keyword_with |
+    keyword_debug
 }
 property = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_" | "-")* }
 properties = { property ~ ("." ~ property)* }
@@ -47,7 +49,8 @@ for_template = { start_marker ~ whitespace* ~ keyword_for ~ whitespace+ ~ proper
 with_template = { start_marker ~ whitespace* ~ keyword_with ~ whitespace+ ~ property ~ whitespace+ ~ "=" ~ whitespace+ ~ expression ~ whitespace* ~ end_marker ~ vertical_whitespace? ~ sub_template ~ end_template }
 for_else_template = { for_template ~ sub_template ~ else_template? ~ sub_template ~ end_template }
 comment = { comment_start_marker ~ (!comment_end_marker ~ ANY)+ ~ comment_end_marker ~ vertical_whitespace? }
-template = { comment | if_elif_else_template | for_else_template | with_template | expression_template }
+debug_template = { start_marker ~ whitespace* ~ keyword_debug ~ whitespace+ ~ expression ~ whitespace* ~ end_marker ~ vertical_whitespace? }
+template = { comment | debug_template | if_elif_else_template | for_else_template | with_template | expression_template }
 character = @{ !start_marker ~ ANY }
 
 sub_template = _{ (template | character)* }
