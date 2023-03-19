@@ -1,14 +1,13 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use log::info;
 use pest::iterators::{Pair, Pairs};
 use pest::Parser;
-use serde_json::{Map, Value};
+use serde_json::{json, Map, Value};
 
 use crate::error::TemplateRenderError;
 use crate::function;
-
-use log::info;
 
 #[derive(Parser)]
 #[grammar = "grammar/template.pest"]
@@ -231,11 +230,23 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<(String, bool),
                     }
                     Rule::template => {
                         let zipped = iterables.iter().zip(iterables_results.iter());
-                        for (iterable, iterable_result) in zipped {
+                        for (index, (iterable, iterable_result)) in zipped.enumerate() {
                             let context_value = match data {
                                 Value::Object(map) => {
                                     let mut q = map.clone();
                                     q.insert(iterable_name.to_string(), iterable.clone());
+                                    let first = index == 0;
+                                    let last = index == iterables.len() - 1;
+                                    let index0 = index;
+                                    let index1 = index + 1;
+                                    let size = iterables.len();
+                                    q.insert("loop".to_string(), json!({
+                                        "first": first,
+                                        "last": last,
+                                        "index0": index0,
+                                        "index1": index1,
+                                        "size": size,
+                                    }));
                                     Value::Object(q)
                                 }
                                 _ => iterable.clone(),

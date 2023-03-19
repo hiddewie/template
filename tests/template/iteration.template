@@ -16,3 +16,12 @@ else
 {% else %}
 else
 {% end %}
+
+{% for item in items %}
+  0-based index: {% loop.index0 %}
+  1-based index: {% loop.index1 %}
+  true if this is the first iteration: {% loop.first %}
+  true if this is the last iteration: {% loop.last %}
+  the number of iterations in the loop: {% loop.size %}
+  alternate items in an array, treating it as circular: {% loop.index0 | alternate(["one", "two", "three"]) %}
+{% end %}

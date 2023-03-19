@@ -172,11 +172,19 @@ Loop over arrays with `for` and `else`:
 ```
 {% for item in array_value %}
   Rendered content for each item
-  {% item.property %} Properties can be referenced
+  reference a property in iteration array: {% item.property %}
+  0-based index: {% loop.index0 %}
+  1-based index: {% loop.index1 %}
+  true if this is the first iteration: {% loop.first %}
+  true if this is the last iteration: {% loop.last %}
+  the number of iterations in the loop: {% loop.size %}
+  alternate items in an array, treating it as circular: {% loop.index0 | alternate(["one", "two", "three"]) %}
 {% else %}
   Rendered when the array did not contain any values
 {% end %}
 ```
+
+Notice that within the `for` loop, the `loop` variable provides information about the loop iteration.
 
 ### Context variables
 

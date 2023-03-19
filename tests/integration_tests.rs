@@ -527,6 +527,19 @@ nested value 2
 loop end
 
 
+
+  0-based index: 0
+  1-based index: 1
+  true if this is the first iteration: true
+  true if this is the last iteration: false
+  the number of iterations in the loop: 2
+  alternate items in an array, treating it as circular: one
+  0-based index: 1
+  1-based index: 2
+  true if this is the first iteration: false
+  true if this is the last iteration: true
+  the number of iterations in the loop: 2
+  alternate items in an array, treating it as circular: two
 "#)
         .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/iteration.template'
 \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/iteration.json'

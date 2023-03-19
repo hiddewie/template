@@ -1,6 +1,6 @@
 use std::ops::Index;
-use chrono::{DateTime, Local};
 
+use chrono::{DateTime, Local};
 use itertools::Itertools;
 use regex::Regex;
 use serde_json::{Map, Value};
@@ -284,7 +284,7 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
                 Value::String(substring) => {
                     let needle_string = require_string_value(needle)?;
                     Ok(Value::Bool(substring.contains(needle_string)))
-                },
+                }
                 Value::Array(array) => Ok(Value::Bool(array.contains(needle))),
                 _ => Err(TemplateRenderError::TypeError(type_of(&needle))),
             }
@@ -426,14 +426,13 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
             } else {
                 let mut result: Vec<Value> = vec![];
 
-                for i in (0..(array.len())).step_by(chunk_size_number-overlap_number) {
+                for i in (0..(array.len())).step_by(chunk_size_number - overlap_number) {
                     // step 3, overlap 1
                     // 0 to 3
                     // 0+3-1 to 0+3-1+3
-                    result.push(Value::Array(array[i..(i +  chunk_size_number-overlap_number).min(array.len())].to_vec()))
+                    result.push(Value::Array(array[i..(i + chunk_size_number - overlap_number).min(array.len())].to_vec()))
                 }
                 Ok(Value::Array(result))
-
             }
         }
         "parseFormatDateTime" => {
@@ -444,7 +443,7 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
                 DateTime::from(Local::now())
             } else {
                 let parse_format = require_argument(function, arguments, 0)?;
-                let parse_format_string= require_string_value(parse_format)?;
+                let parse_format_string = require_string_value(parse_format)?;
                 DateTime::parse_from_str(string, parse_format_string)
                     .map_err(|err| TemplateRenderError::ArgumentValueError(format!("Could not parse date-time with value '{string}' and parse format string '{parse_format_string}': {err}")))?
             };
@@ -453,6 +452,20 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
             let format_string = require_string_value(format)?;
             let formatted = parse_result.format(format_string).to_string();
             Ok(Value::String(formatted))
+        }
+        "alternate" => {
+            let index = require_u64_value(value)?;
+            let items = require_argument(function, arguments, 0)?;
+            let items_array = require_array_value(items)?;
+
+            if items_array.is_empty() {
+                Ok(Value::Null)
+            } else {
+                let array_index: usize = index.try_into()
+                    .map_err(|error| TemplateRenderError::ArgumentValueError(format!("{} cannot be cast to usize, {}", index, error)))?;
+
+                Ok(items_array[array_index % items_array.len()].clone())
+            }
         }
         _ => Err(TemplateRenderError::UnknownFunctionError(function.to_string()))
     };
