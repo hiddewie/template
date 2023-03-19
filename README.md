@@ -294,6 +294,16 @@ Logged output:
 [2023-03-05T11:18:56Z INFO  template_cli::evaluate] Debug expression: some_value = {"b":"c"}
 ```
 
+The `assert` function can be used to assert the expected value of an expression. If the assertion fails, the template rendering will fail with an error indicated by the given assertion message. The template:
+```
+{% true | assert(true, "This is fine") %}
+{% false | assert(true, "This is not OK") %}
+```
+will exit with an error code, and log the output 
+```
+[2023-03-19T16:02:48Z ERROR template] ERROR: Could not render template: Assertion failed: Expected value 'true' but found 'false': This is not OK
+```
+
 ## Development
 
 ### Build

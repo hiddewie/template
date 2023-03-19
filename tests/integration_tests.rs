@@ -1011,3 +1011,23 @@ fn test_debug() {
 \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template_cli::evaluate\] Debug expression: "" | startsWith("abc") | false
 $"#).unwrap());
 }
+
+#[test]
+fn test_assert() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("--template")
+        .arg("tests/template/assert.template")
+        .arg("--configuration")
+        .arg("tests/configuration/empty.json")
+        .assert();
+
+    assert
+        .code(6)
+        .stdout("")
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/assert.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/empty.json'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using JSON format
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z ERROR template\] ERROR: Could not render template: Assertion failed: Expected value 'true' but found 'false': This is not OK
+$"#).unwrap());
+}

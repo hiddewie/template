@@ -10,6 +10,7 @@ pub enum TemplateRenderError {
     InvalidRegexError(String),
     JsonParseError(String),
     JsonSerializationError,
+    AssertionError(String),
 }
 
 impl Display for TemplateRenderError {
@@ -23,6 +24,7 @@ impl Display for TemplateRenderError {
             TemplateRenderError::InvalidRegexError(regex) => f.write_str(format!("Invalid regular expression given: '{}'", regex.as_str()).as_str())?,
             TemplateRenderError::JsonParseError(json) => f.write_str(format!("Could not parse JSON: '{}'", json.as_str()).as_str())?,
             TemplateRenderError::JsonSerializationError => f.write_str(format!("Could not serialize JSON").as_str())?,
+            TemplateRenderError::AssertionError(message) => f.write_str(format!("Assertion failed: {}", message.as_str()).as_str())?,
         }
         return Ok(());
     }

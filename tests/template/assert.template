@@ -1,0 +1,2 @@
+{% true | assert(true, "This is fine") %}
+{% false | assert(true, "This is not OK") %}

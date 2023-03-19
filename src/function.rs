@@ -467,6 +467,17 @@ pub fn apply_function(value: &Value, function: &str, arguments: &Vec<Value>) -> 
                 Ok(items_array[array_index % items_array.len()].clone())
             }
         }
+        "assert" => {
+            let expected_value = require_argument(function, arguments, 0)?;
+            let message = require_argument(function, arguments, 1)?;
+            let message_string = require_string_value(message)?;
+
+            if value != expected_value {
+                Err(TemplateRenderError::AssertionError(format!("Expected value '{}' but found '{}': {}", expected_value, value, message_string)))
+            } else {
+                Ok(Value::Null)
+            }
+        }
         _ => Err(TemplateRenderError::UnknownFunctionError(function.to_string()))
     };
 }
