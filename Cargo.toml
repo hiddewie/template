@@ -1,6 +1,6 @@
 [package]
 name = "template-cli"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 authors = ["Hidde Wieringa <hidde@hiddewieringa.nl>"]
 description = "CLI for templating based on JSON, YAML or HCL configuration"
