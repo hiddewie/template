@@ -11,13 +11,13 @@ fn no_arguments() {
         .failure()
         .code(2)
         .stdout("")
-        .stderr(r#"error: The following required arguments were not provided:
+        .stderr(r#"error: the following required arguments were not provided:
   --template <TEMPLATE>
   --configuration <CONFIGURATION>
 
 Usage: template --template <TEMPLATE> --configuration <CONFIGURATION>
 
-For more information try '--help'
+For more information, try '--help'.
 "#);
 }
 
@@ -33,12 +33,12 @@ fn missing_required_template_argument() {
         .failure()
         .code(2)
         .stdout("")
-        .stderr(r#"error: The following required arguments were not provided:
+        .stderr(r#"error: the following required arguments were not provided:
   --template <TEMPLATE>
 
 Usage: template --template <TEMPLATE> --configuration <CONFIGURATION>
 
-For more information try '--help'
+For more information, try '--help'.
 "#);
 }
 
@@ -54,12 +54,12 @@ fn missing_required_configuration_argument() {
         .failure()
         .code(2)
         .stdout("")
-        .stderr(r#"error: The following required arguments were not provided:
+        .stderr(r#"error: the following required arguments were not provided:
   --configuration <CONFIGURATION>
 
 Usage: template --template <TEMPLATE> --configuration <CONFIGURATION>
 
-For more information try '--help'
+For more information, try '--help'.
 "#);
 }
 
@@ -94,8 +94,8 @@ Options:
   -t, --template <TEMPLATE>            Absolute or relative path to the template file
   -c, --configuration <CONFIGURATION>  Absolute or relative path to the configuration file. Provide `-` as path to read the configuration input from the standard input stream
   -f, --format <FORMAT>                Specify the format of the configuration input. Useful when the configuration file has a non-standard extension, or when the input is given in the standard input stream [possible values: json, hcl, yaml]
-  -h, --help                           Print help information
-  -V, --version                        Print version information
+  -h, --help                           Print help
+  -V, --version                        Print version
 "#)
         .stderr("");
 }
