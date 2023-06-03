@@ -795,7 +795,7 @@ dependencies = [
 
 [[package]]
 name = "template-cli"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "assert_cmd",
  "chrono",
