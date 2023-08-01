@@ -14,7 +14,7 @@ serde_json = "1.0"
 serde_yaml = "0.9"
 clap = { version = "4.3", features = ["derive"] }
 pest = "2.7"
-pest_derive = "2.0"
+pest_derive = "2.7"
 regex = "1"
 hcl-rs = "0.14"
 itertools = "0.11"
