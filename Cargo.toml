@@ -8,6 +8,7 @@ license = "MIT"
 keywords = ["template", "cli", "json", "yaml", "hcl"]
 categories = ["command-line-utilities", "template-engine", "development-tools"]
 exclude = [".github"]
+repository = "https://github.com/hiddewie/template"
 
 [dependencies]
 serde_json = "1.0"
