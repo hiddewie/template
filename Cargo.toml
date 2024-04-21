@@ -25,7 +25,7 @@ env_logger = "0.10"
 
 [dev-dependencies]
 assert_cmd = "2.0"
-predicates = "3.0"
+predicates = "3.1"
 
 [[bin]]
 name = "template"
