@@ -1031,3 +1031,22 @@ fn test_assert() {
 \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z ERROR template\] ERROR: Could not render template: Assertion failed: Expected value 'true' but found 'false': This is not OK
 $"#).unwrap());
 }
+
+#[test]
+fn if_elif_with_subtemplate() {
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("--template")
+        .arg("tests/template/if_elif_with_subtemplate.template")
+        .arg("--configuration")
+        .arg("tests/configuration/hello_world.yml")
+        .assert();
+
+    assert
+        .success()
+        .stdout("Hello\n")
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/if_elif_with_subtemplate.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/hello_world.yml'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using YAML format
+$"#).unwrap());
+}

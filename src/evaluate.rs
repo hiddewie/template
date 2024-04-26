@@ -177,11 +177,13 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<(String, bool),
                         }
                     }
                     Rule::template => {
-                        let (evaluation, gobble_inner) = evaluate_template(&data, if_inner)?;
-                        if gobble_inner {
-                            result = result.trim_end_matches(&[' ', '\t']).to_string();
+                        if valid {
+                            let (evaluation, gobble_inner) = evaluate_template(&data, if_inner)?;
+                            if gobble_inner {
+                                result = result.trim_end_matches(&[' ', '\t']).to_string();
+                            }
+                            result.push_str(evaluation.as_str())
                         }
-                        result.push_str(evaluation.as_str())
                     }
                     _ => unreachable!(),
                 }
