@@ -258,8 +258,10 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, Templat
             }
 
             // Provide the looped results
-            iterables_results.iter().for_each(|iterable_result|
+            iterables_results.iter().for_each(|iterable_result| {
+                // eprintln!("{}", iterable_result.take().as_str());
                 result.push_str(iterable_result.take().as_str())
+            }
             )
         }
         Rule::with_template => {

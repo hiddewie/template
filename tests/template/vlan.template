@@ -1,6 +1,7 @@
-{% for vlan in vlans %}
-vlan {% vlan.id %}
-  {% if vlan.name %}
-  name {% vlan.name %}
-  {% end %}
+vlans
+  {% for vlan in vlans %}
+  vlan {% vlan.id %}
+    {% if vlan.name %}
+    name {% vlan.name %}
+    {% end %}
 {% end %}

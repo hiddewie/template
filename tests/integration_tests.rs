@@ -1064,9 +1064,14 @@ fn vlan_test() {
 
     assert
         .success()
-        .stdout(r#"vlan 10
-vlan 20
-  name printer
+        .stdout(r#"vlans
+  vlan 10
+  vlan 20
+    name printer
+  vlan 30
+    name pc
+  vlan 40
+    name tablet
 "#)
         .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/vlan.template'
 \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/vlan.yml'
