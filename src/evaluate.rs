@@ -115,13 +115,12 @@ fn parse_expression(value: &Value, expression: &mut Pairs<Rule>) -> Result<Value
 }
 
 
-fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<(String, bool), TemplateRenderError> {
+fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<String, TemplateRenderError> {
     let mut result = String::new();
 
     let mut inner_rules = record.into_inner();
     let expression = inner_rules.next().unwrap();
 
-    let mut gobble = false;
     match expression.as_rule() {
         Rule::if_elif_else_template => {
             let mut done = false;
@@ -129,7 +128,6 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<(String, bool),
             for if_inner in expression.into_inner() {
                 match if_inner.as_rule() {
                     Rule::if_template => {
-                        gobble = true;
                         valid = false;
 
                         let mut if_inner_expression = if_inner.into_inner();
@@ -178,10 +176,7 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<(String, bool),
                     }
                     Rule::template => {
                         if valid {
-                            let (evaluation, gobble_inner) = evaluate_template(&data, if_inner)?;
-                            if gobble_inner {
-                                result = result.trim_end_matches(&[' ', '\t']).to_string();
-                            }
+                            let evaluation = evaluate_template(&data, if_inner)?;
                             result.push_str(evaluation.as_str())
                         }
                     }
@@ -199,7 +194,6 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<(String, bool),
             for for_inner in expression.into_inner() {
                 match for_inner.as_rule() {
                     Rule::for_template => {
-                        gobble = true;
                         let mut for_inner_expression = for_inner.into_inner();
                         iterable_name = for_inner_expression.next().unwrap().as_str();
                         let for_iterable = parse_expression(&data, &mut for_inner_expression.next().unwrap().into_inner()).unwrap();
@@ -253,13 +247,9 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<(String, bool),
                                 }
                                 _ => iterable.clone(),
                             };
-                            let (template_result, gobble_inner) = evaluate_template(&context_value, for_inner.clone())?;
+                            let template_result = evaluate_template(&context_value, for_inner.clone())?;
                             iterable_result.replace_with(|current_result|
-                                if gobble_inner {
-                                    format!("{}{}", current_result.as_str().trim_end_matches(&[' ', '\t']), template_result)
-                                } else {
-                                    format!("{}{}", current_result, template_result)
-                                }
+                                format!("{}{}", current_result, template_result)
                             );
                         }
                     }
@@ -299,11 +289,8 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<(String, bool),
                             }
                             _ => value.clone(),
                         };
-                        let (template_result, gobble_inner) = evaluate_template(&context_value, for_inner.clone())?;
+                        let template_result = evaluate_template(&context_value, for_inner.clone())?;
                         result.push_str(template_result.as_str());
-                        if gobble_inner {
-                            result = result.trim_end_matches(&[' ', '\t']).to_string();
-                        }
                     }
                     _ => unreachable!(),
                 }
@@ -324,7 +311,7 @@ fn evaluate_template(data: &Value, record: Pair<Rule>) -> Result<(String, bool),
         _ => unreachable!(),
     }
 
-    return Ok((result, gobble));
+    return Ok(result);
 }
 
 pub fn evaluate_file(data: &Value, file: Pair<Rule>) -> Result<String, TemplateRenderError> {
@@ -333,10 +320,7 @@ pub fn evaluate_file(data: &Value, file: Pair<Rule>) -> Result<String, TemplateR
     for record in file.into_inner() {
         match record.as_rule() {
             Rule::template => {
-                let (evaluation, gobble_inner) = evaluate_template(&data, record)?;
-                if gobble_inner {
-                    result = result.trim_end_matches(&[' ', '\t']).to_string();
-                }
+                let evaluation = evaluate_template(&data, record)?;
                 result.push_str(evaluation.as_str())
             }
             Rule::character => {

@@ -1050,3 +1050,26 @@ fn if_elif_with_subtemplate() {
 \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using YAML format
 $"#).unwrap());
 }
+
+#[test]
+fn vlan_test() {
+    // From https://blog.networktocode.com/post/whitespace-control-in-jinja-templates/
+    let mut cmd = Command::cargo_bin("template").unwrap();
+    let assert = cmd
+        .arg("--template")
+        .arg("tests/template/vlan.template")
+        .arg("--configuration")
+        .arg("tests/configuration/vlan.yml")
+        .assert();
+
+    assert
+        .success()
+        .stdout(r#"vlan 10
+vlan 20
+  name printer
+"#)
+        .stderr(is_match(r#"^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using template file 'tests/template/vlan.template'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Using configuration file 'tests/configuration/vlan.yml'
+\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z INFO  template\] Parsing configuration using YAML format
+$"#).unwrap());
+}
