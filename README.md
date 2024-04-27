@@ -280,6 +280,10 @@ Some functions take one or more arguments, which can be passed by using parenthe
 
 - `parseFormatDateTime(parse, format)`: parse the date/time, and format it to the given format. If the input is the string `now`, it will be parsed to the current instant. Otherwise, the parsing and formatting follows the [strftime](https://docs.rs/chrono/latest/chrono/format/strftime/index.html#specifiers) specifiers.
 
+### Whitespace control
+
+Horizontal whitespace before a flow control tag, and a single newline after a flow control tag will be removed. This behaviour ensures that tags can be put on a separate line without producing a significant amount of whitespace.
+
 ### Debugging
 
 The `debug` statement can be used to log an expression and it's evaluated result without outputting the content into the templated output:
