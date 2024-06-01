@@ -17,7 +17,7 @@ clap = { version = "4.4", features = ["derive"] }
 pest = "2.7"
 pest_derive = "2.7"
 regex = "1"
-hcl-rs = "0.16"
+hcl-rs = "0.18"
 itertools = "0.12"
 chrono = "0.4"
 log = "0.4"
